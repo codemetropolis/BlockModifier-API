@@ -29,6 +29,7 @@ public class FileHandler {
 		}
 	}
 
+
 	private static void copyDirectory(File source, File target, String... ignore) throws IOException {
 	    if (!target.exists()) {
 	        target.mkdirs();
