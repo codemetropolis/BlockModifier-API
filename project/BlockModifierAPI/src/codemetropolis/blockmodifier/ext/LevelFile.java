@@ -13,8 +13,8 @@ public class LevelFile {
     	path.getParentFile().mkdirs();
         try {
             file = new RandomAccessFile(path, "rw");  
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("Path is invalid.", e);
         }
     }
 

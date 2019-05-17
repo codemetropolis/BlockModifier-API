@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class NBTTag {
+
+    public static final NBTTag END_TAG = new NBTTag(Type.TAG_End, null, null);
+
     private final Type type;
     private Type listType = null;
     private final String name;
@@ -24,7 +27,8 @@ public class NBTTag {
         TAG_String,
         TAG_List,
         TAG_Compound,
-        TAG_Int_Array
+        TAG_Int_Array,
+        TAG_Long_Array
     }
 
     /**
@@ -111,6 +115,10 @@ public class NBTTag {
             if (!(value instanceof int[]))
                 throw new IllegalArgumentException();
             break;
+        case TAG_Long_Array:
+            if (!(value instanceof long[]))
+                throw new IllegalArgumentException();
+            break;
         default:
             throw new IllegalArgumentException();
         }
@@ -186,6 +194,10 @@ public class NBTTag {
             break;
         case TAG_Int_Array:
             if (!(value instanceof int[]))
+                throw new IllegalArgumentException();
+            break;
+        case TAG_Long_Array:
+            if (!(value instanceof long[]))
                 throw new IllegalArgumentException();
             break;
         default:
@@ -469,6 +481,13 @@ public class NBTTag {
 				dos.writeInt(ia[qq]);
 			}
             break;
+        case TAG_Long_Array:
+            long[] la = (long[]) value;
+            dos.writeInt(la.length);
+			for (int qq = 0; qq < la.length; qq++) {
+				dos.writeLong(la[qq]);
+			}
+            break;
 
         }
     } 
@@ -492,6 +511,9 @@ public class NBTTag {
         		break;
         	case TAG_Int_Array:
         		sb.append(" [" + ((int[])value).length + " * 4 bytes]");
+        		break;
+        	case TAG_Long_Array:
+        		sb.append(" [" + ((long[])value).length + " * 8 bytes]");
         		break;
         	case TAG_List:
         		sb.append(": " + (nestedTags.length) + " entries");

@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import codemetropolis.blockmodifier.ext.RegionFile;
 import codemetropolis.blockmodifier.ext.NBTTag;
@@ -56,11 +58,13 @@ public class Region {
 	
 	public void writeToFile() {
 		try {
+			connectNeighbouringFecnes();
 			for(int i = 0; i < 1024; i++) {
 				Chunk c = chunks[i];
 				if(c != null) {
 					DataOutputStream outputStream = regionFile.getChunkDataOutputStream(i % 32, i / 32);
 					c.calculateLighting();
+					//c.filterMagicalBlocks();
 					c.toNBT().writeTo(outputStream);
 				}
 			}
@@ -68,6 +72,62 @@ public class Region {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void connectNeighbouringFecnes() {
+		for(int x=0; x<512; x++) {
+			for(int y=0; y<256; y++) {
+				for(int z=0; z<512; z++) {
+					String blockId = getBlockIdAt(x, y, z);
+					
+					if( blockId.equals("minecraft:oak_fence") ) {
+                        Map<String, String> fenceProperties = new HashMap<>();
+
+                        if( z > 0 && getBlockIdAt(x, y, z-1).equals("minecraft:oak_fence") ) {
+                                fenceProperties.put("north", "true");
+                        }
+                        if( x > 0 && getBlockIdAt(x-1, y, z).equals("minecraft:oak_fence") ) {
+                                fenceProperties.put("west", "true");
+                        }
+                        if( z < 512-1 && getBlockIdAt(x, y, z+1).equals("minecraft:oak_fence") ) {
+                                fenceProperties.put("south", "true");
+                        }
+                        if( x < 512-1 && getBlockIdAt(x+1, y, z).equals("minecraft:oak_fence") ) {
+                                fenceProperties.put("east", "true");
+                        }
+
+                        if( !fenceProperties.isEmpty() ) {
+                        	setBlockAt(x, y, z, "minecraft:oak_fence", fenceProperties);
+                        }
+					}
+				}
+			}
+		}
+	}
+	
+	public String getBlockIdAt(int x, int y, int z) {
+		int chunkX = x >> 4;
+		int chunkZ = z >> 4;
+		int chunkIndex = chunkZ * 32 + chunkX;
+		Chunk chunk = chunks[chunkIndex];
+		
+		if( chunk == null ) {
+			return "";
+		}
+		
+		int blockX = x & 0xF;
+		int blockZ = z & 0xF;
+		return chunk.getBlockId(blockX, y, blockZ);
+	}
+	
+	public void setBlockAt(int x, int y, int z, String blockId, Map<String, String> blockProperties) {
+		int chunkX = x >> 4;
+		int chunkZ = z >> 4;
+		int chunkIndex = chunkZ * 32 + chunkX;
+		Chunk chunk = chunks[chunkIndex];
+		int blockX = x & 0xF;
+		int blockZ = z & 0xF;
+		chunk.setBlock(blockX, y, blockZ, blockId, blockProperties);
 	}
 	
 	@Override

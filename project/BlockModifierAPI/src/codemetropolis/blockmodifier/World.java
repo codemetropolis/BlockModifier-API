@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.Map;
 
 import codemetropolis.blockmodifier.ext.NBTException;
+import codemetropolis.blockmodifier.ext.NBTTag;
 
 public class World {
 	
@@ -27,16 +29,11 @@ public class World {
 		level.writeToFile();
 	}
 	
-	private void setBlock(int x, int y, int z, int type, int data, Object other) {
-		
-		if(y < 0 || y > 255) {
-			try {
-				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
-			} catch (NBTException e) {
-				e.printStackTrace();
-			}
+	private void setBlock(int x, int y, int z, String blockId, NBTTag[] blockProperties, Object other) {
+		if (y < 0 || y > 255) {
+			throw new IllegalArgumentException("Block's 'y' coordinate must be between 0 and 255");
 		}
-		
+
 		int regionX = x >> 9;
 		int regionZ = z >> 9;
 		int chunkX = x >> 4;
@@ -55,19 +52,19 @@ public class World {
 		if(chunk == null) {
 			chunk = new Chunk(chunkX, chunkZ);
 			if(groundBuilding)
-				chunk.fill(GROUNDLEVEL, (byte) 2);
+				chunk.fill(GROUNDLEVEL, "minecraft:grass_block", new NBTTag[] {new NBTTag(NBTTag.Type.TAG_String, "snowy", "false"), NBTTag.END_TAG});
 			region.setChunk(chunkIndexX, chunkIndexZ, chunk);
 		}
-		chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
+		chunk.setBlock(blockX, y, blockZ, blockId, blockProperties);
 		
-		if(type == 63 || type == 68) {
+		if( "minecraft:sign".equals(blockId) || "minecraft:wall_sign".equals(blockId) ) {
 			chunk.setSignText(x, y, z, (String) other);
-		} else if (type == 54) {
+		} else if ( "minecraft:chest".equals(blockId) ) {
 			chunk.clearChestItems(x, y, z);
 			int[] items = (int[])other;
 			for(int i = 0; i < items.length; i += 2)
 				chunk.addChestItem(x, y, z, items[i], items[i+1]);
-		} else if (type == 176) {
+		} else if ( "minecraft:standing_banner".equals(blockId) ) {
 			chunk.setBannerColor(x, y, z, (int)other);
 		} else {
 			chunk.clearTileEntitiesAt(x, y, z);
@@ -75,44 +72,60 @@ public class World {
 		
 	}
 	
-	public void setBlock(int x, int y, int z, int type, int data) {
-		setBlock(x, y, z, type, data, null);
+	public void setBlock(int x, int y, int z, String blockId, NBTTag[] blockProperties) {
+		setBlock(x, y, z, blockId, blockProperties, null);
 	}
 	
-	public void setBlock(int x, int y, int z, int type) {
-		setBlock(x, y, z, type, 0, null);
+	public void setBlock(int x, int y, int z, String blockId) {
+		setBlock(x, y, z, blockId, new NBTTag[0], null);
 	}
 	
 	public void removeBlock(int x, int y, int z) {
-		setBlock(x, y, z, 0);
+		setBlock(x, y, z, "minecraft:air");
 	}
 	
-	public void setSignPost(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 63, data, text);
+	public void setSignPost(int x, int y, int z, NBTTag[] blockProperties, String text) {
+		setBlock(x, y, z, "minecraft:sign", blockProperties, text);
 	}
 	
 	public void setSignPost(int x, int y, int z, String text) {
-		setSignPost(x, y, z, 0, text);
+		setSignPost(x, y, z, new NBTTag[] {new NBTTag(NBTTag.Type.TAG_String, "rotation", "0"), new NBTTag(NBTTag.Type.TAG_String, "waterlogged", "false"), new NBTTag(NBTTag.Type.TAG_End, null, null)}, text);
 	}
 	
-	public void setWallSign(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 68, data, text);
+	public void setWallSign(int x, int y, int z, NBTTag[] blockProperties, String text) {
+		setBlock(x, y, z, "minecraft:wall_sign", blockProperties, text);
 	}
 	
 	public void setWallSign(int x, int y, int z, String text) {
-		setWallSign(x, y, z, 0, text);
+		setWallSign(x, y, z, new NBTTag[] {new NBTTag(NBTTag.Type.TAG_String, "facing", "north"), new NBTTag(NBTTag.Type.TAG_String, "waterlogged", "false"), new NBTTag(NBTTag.Type.TAG_End, null, null)}, text);
 	}
 	
-	public void setChest(int x, int y, int z, int data, int[] items) {
-		setBlock(x, y, z, 54, data, items);	
+	public void setChest(int x, int y, int z, NBTTag[] blockProperties, int[] items) {
+		setBlock(x, y, z, "minecraft:chest", blockProperties, items);	
 	}
 	
 	public void setChest(int x, int y, int z, int[] items) {
-		setChest(x, y, z, 0, items);	
+		setChest(x, y, z,  new NBTTag[] {new NBTTag(NBTTag.Type.TAG_String, "facing", "north"), new NBTTag(NBTTag.Type.TAG_String, "single", "single"), new NBTTag(NBTTag.Type.TAG_String, "waterlogged", "false"), new NBTTag(NBTTag.Type.TAG_End, null, null)}, items);	
 	}
 	
-	public void setBanner(int x, int y, int z, int data, BannerColor color) {
-		setBlock(x, y, z, 176, data, color.ordinal());	
+	public void setBanner(int x, int y, int z, NBTTag[] blockProperties, BannerColor color) {
+		setBlock(x, y, z, "minecraft:standing_banner", blockProperties, color.ordinal());	
+	}
+
+	public void setBlock(int x, int y, int z, String blockId, Map<String, String> properties) {
+		setBlock(x, y, z, blockId, Chunk.PropertiesToTags(properties));
+	}
+	
+	public void setSignPost(int x, int y, int z, Map<String, String> properties, String text) {
+		setSignPost(x, y, z, Chunk.PropertiesToTags(properties), text);
+	}
+	
+	public void setWallSign(int x, int y, int z, Map<String, String> properties, String text) {
+		setWallSign(x, y, z, Chunk.PropertiesToTags(properties), text);
+	}
+	
+	public void setBanner(int x, int y, int z, Map<String, String> properties, BannerColor color) {
+		setBanner(x, y, z, Chunk.PropertiesToTags(properties), color);	
 	}
 	
 	private Region getRegion(int x, int z) {
