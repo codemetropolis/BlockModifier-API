@@ -69,6 +69,10 @@ public class World {
 				chunk.addChestItem(x, y, z, items[i], items[i+1]);
 		} else if (type == 176) {
 			chunk.setBannerColor(x, y, z, (int)other);
+
+//		If we are getting spawner block, we set the nbt tags of it by the parameters
+		} else if (type == 52) {
+			chunk.setSpawnerSubstance(x, y, z, (String) other);
 		} else {
 			chunk.clearTileEntitiesAt(x, y, z);
 		}
@@ -102,7 +106,31 @@ public class World {
 	public void setWallSign(int x, int y, int z, String text) {
 		setWallSign(x, y, z, 0, text);
 	}
-	
+
+	/**
+	 * This method sets the spawner blocks that it receives, the type 52 is the code of spawners
+	 * @param x x index of spawner
+	 * @param y y index of spawner
+	 * @param z z index of spawner
+	 * @param data data of block
+	 * @param entityId name of entity that spawner spawns, example: minecraft:zombie
+	 */
+	public void setSpawner(int x, int y, int z, int data, String entityId) {
+		setBlock(x, y, z, 52, data, entityId);
+	}
+
+	/**
+	 * This method receives the position data and monster entity of spawner blocks from codemetropolis and forwards them
+	 * to another method that setBlock by data's
+	 * @param x x index of spawner
+	 * @param y y index of spawner
+	 * @param z z index of spawner
+	 * @param entityId name of entity that spawner spawns, example: minecraft:zombie
+	 */
+	public void setSpawner(int x, int y, int z, String entityId) {
+		setSpawner(x, y, z, 0, entityId);
+	}
+
 	public void setChest(int x, int y, int z, int data, int[] items) {
 		setBlock(x, y, z, 54, data, items);	
 	}
