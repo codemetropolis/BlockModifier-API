@@ -112,32 +112,36 @@ public class Chunk {
         NBTTag tileEntities = tag.getSubtagByName("Level").getSubtagByName("TileEntities");
 
 //      create a new entity from the parameters
-//        NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, "id", entity);
-//        NBTTag entityTag = new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId, new NBTTag(NBTTag.Type.TAG_End, null, null)});
+        String convertedEntity = entity.replace("minecraft:", "").substring(0, 1).toUpperCase() +
+                entity.replace("minecraft:", "").substring(1);
+        NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, "id", convertedEntity);
+        NBTTag entityTag = new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId,
+
+                new NBTTag(NBTTag.Type.TAG_End, null, null)});
 
 //      if we already have a tile entity spawner at the same position we got in parameter,
-//      we just set the NBT tag that describes what do the spawner spawns (SpawnData) to our entity and return
-//        for (NBTTag t : (NBTTag[]) tileEntities.getValue()) {
-//            if (
-//                    (int) t.getSubtagByName("x").getValue() == x &&
-//                            (int) t.getSubtagByName("y").getValue() == y &&
-//                            (int) t.getSubtagByName("z").getValue() == z &&
-//                            ((String) t.getSubtagByName("id").getValue()).equals("minecraft:mob_spawner")
-//            ) {
-//                t.getSubtagByName("SpawnData").setValue(new NBTTag[]{entityTag, new NBTTag(NBTTag.Type.TAG_End, null, null)});
-//                return;
-//            }
-//
-//        }
+//      we just set the NBT tag that describes what will the spawner spawn (EntityId) to our entity and return
+        for (NBTTag t : (NBTTag[]) tileEntities.getValue()) {
+            if (
+                    (int) t.getSubtagByName("x").getValue() == x &&
+                            (int) t.getSubtagByName("y").getValue() == y &&
+                            (int) t.getSubtagByName("z").getValue() == z &&
+                            ((String) t.getSubtagByName("id").getValue()).equals("MobSpawner")
+            ) {
+                t.getSubtagByName("EntityId").setValue(new NBTTag[]{entityTag, new NBTTag(NBTTag.Type.TAG_End,
+                        null, null)});
+                return;
+            }
+
+        }
 
 //      if we don't have a spawner tile entity in the position we got in parameter,
-//      we create a new tile entity with the position parameters, the id of spawner blocks, and we also set
-//      the NBT tag that describes what do the spawner spawns (SpawnData) to our entity
+//      we create a new tile entity with the position parameters (x, y, z), the id of the spawner block (MobSpawner),
+//      and we also set the NBT tag that sets the entity needed to spawn from the spawner (EntityId)
         NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, "x", x);
         NBTTag yTag = new NBTTag(NBTTag.Type.TAG_Int, "y", y);
         NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, "z", z);
-
-        NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", entity.replace("minecraft:", "").substring(0, 1).toUpperCase() + entity.replace("minecraft:", "").substring(1));
+        NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", convertedEntity);
         NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
 
         NBTTag[] tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, new NBTTag(NBTTag.Type.TAG_End,
