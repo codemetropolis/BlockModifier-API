@@ -139,11 +139,9 @@ public class Chunk {
 
         NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", entity.replace("minecraft:", "").substring(0, 1).toUpperCase() + entity.replace("minecraft:", "").substring(1));
         NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
-//        NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "minecraft:mob_spawner");
 
-//        NBTTag spawnTag = new NBTTag(NBTTag.Type.TAG_Compound, "SpawnData", new NBTTag[]{entityTag, new NBTTag(NBTTag.Type.TAG_End, null, null)});
-
-        NBTTag[] tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, new NBTTag(NBTTag.Type.TAG_End, null, null)};
+        NBTTag[] tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, new NBTTag(NBTTag.Type.TAG_End,
+                null, null)};
         NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", tagList);
 
 //      then we add our new spawner tile entity to the rest of the tile entities
