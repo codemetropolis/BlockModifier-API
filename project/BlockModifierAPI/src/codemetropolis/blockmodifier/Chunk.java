@@ -107,7 +107,7 @@ public class Chunk {
      * @param z z index of spawner
      * @param entity entity id of the entity we place into the spawner example: minecraft:spider
      */
-    public void setSpawnerSubstance(int x, int y, int z, String entity) {
+    public void setSpawnerSubstance(int x, int y, int z, String entity, int dangerLevel) {
 //      get all tile entities
         NBTTag tileEntities = tag.getSubtagByName("Level").getSubtagByName("TileEntities");
 
@@ -144,8 +144,24 @@ public class Chunk {
         NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", convertedEntity);
         NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
 
-        NBTTag[] tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, new NBTTag(NBTTag.Type.TAG_End,
-                null, null)};
+        // Only for testing purposes
+        //TODO: delete this when testing is done
+        NBTTag maxSpawnDelayTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxSpawnDelay", 2);
+        NBTTag minSpawnDelayTag = new NBTTag(NBTTag.Type.TAG_Short, "MinSpawnDelay", 1);
+
+        NBTTag[] tagList;
+
+        //TODO: change this when testing is done with default MaxNearbyEntities values
+        if (entity.equals("minecraft:zombie")) {
+            NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
+            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, maxSpawnDelayTag, minSpawnDelayTag,
+                    maxNearbyEntitiesTag, new NBTTag(NBTTag.Type.TAG_End,null, null)};
+        } else {
+            // default values
+            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, maxSpawnDelayTag, minSpawnDelayTag,
+                    new NBTTag(NBTTag.Type.TAG_End,null, null)};
+        }
+
         NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", tagList);
 
 //      then we add our new spawner tile entity to the rest of the tile entities
