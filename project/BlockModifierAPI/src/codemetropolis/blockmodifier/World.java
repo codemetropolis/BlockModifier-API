@@ -26,8 +26,9 @@ public class World {
 		Level level = new Level(this);
 		level.writeToFile();
 	}
-	
-	private void setBlock(int x, int y, int z, int type, int data, Object other) {
+
+	//TODO: Remove all the added nulls and make dangerLevel parameter handling better
+	private void setBlock(int x, int y, int z, int type, int data, Object other, Short dangerLvl) {
 		
 		if(y < 0 || y > 255) {
 			try {
@@ -70,9 +71,9 @@ public class World {
 		} else if (type == 176) {
 			chunk.setBannerColor(x, y, z, (int)other);
 
-//		If we are getting spawner block, we set the nbt tags of it by the parameters
+//		If we are getting spawner block, we set its nbt tags based on the parameters
 		} else if (type == 52) {
-			chunk.setSpawnerSubstance(x, y, z, (String) other);
+			chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
 		} else {
 			chunk.clearTileEntitiesAt(x, y, z);
 		}
@@ -80,11 +81,11 @@ public class World {
 	}
 	
 	public void setBlock(int x, int y, int z, int type, int data) {
-		setBlock(x, y, z, type, data, null);
+		setBlock(x, y, z, type, data, null, (short) 0);
 	}
 	
 	public void setBlock(int x, int y, int z, int type) {
-		setBlock(x, y, z, type, 0, null);
+		setBlock(x, y, z, type, 0, null, (short) 0);
 	}
 	
 	public void removeBlock(int x, int y, int z) {
@@ -92,7 +93,7 @@ public class World {
 	}
 	
 	public void setSignPost(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 63, data, text);
+		setBlock(x, y, z, 63, data, text, (short) 0);
 	}
 	
 	public void setSignPost(int x, int y, int z, String text) {
@@ -100,7 +101,7 @@ public class World {
 	}
 	
 	public void setWallSign(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 68, data, text);
+		setBlock(x, y, z, 68, data, text, (short) 0);
 	}
 	
 	public void setWallSign(int x, int y, int z, String text) {
@@ -115,8 +116,8 @@ public class World {
 	 * @param data data of block
 	 * @param entityId name of entity that spawner spawns, example: minecraft:zombie
 	 */
-	public void setSpawner(int x, int y, int z, int data, String entityId) {
-		setBlock(x, y, z, 52, data, entityId);
+	public void setSpawner(int x, int y, int z, int data, String entityId, Short dangerLevel) {
+		setBlock(x, y, z, 52, data, entityId, dangerLevel);
 	}
 
 	/**
@@ -127,12 +128,12 @@ public class World {
 	 * @param z z index of spawner
 	 * @param entityId name of entity that spawner spawns, example: minecraft:zombie
 	 */
-	public void setSpawner(int x, int y, int z, String entityId) {
-		setSpawner(x, y, z, 0, entityId);
+	public void setSpawner(int x, int y, int z, String entityId, Short dangerLevel) {
+		setSpawner(x, y, z, 0, entityId, dangerLevel);
 	}
 
 	public void setChest(int x, int y, int z, int data, int[] items) {
-		setBlock(x, y, z, 54, data, items);	
+		setBlock(x, y, z, 54, data, items, (short) 0);
 	}
 	
 	public void setChest(int x, int y, int z, int[] items) {
@@ -140,7 +141,7 @@ public class World {
 	}
 	
 	public void setBanner(int x, int y, int z, int data, BannerColor color) {
-		setBlock(x, y, z, 176, data, color.ordinal());	
+		setBlock(x, y, z, 176, data, color.ordinal(), (short) 0);
 	}
 	
 	private Region getRegion(int x, int z) {
