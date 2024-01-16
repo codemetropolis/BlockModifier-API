@@ -107,7 +107,7 @@ public class Chunk {
      * @param z z index of spawner
      * @param entity entity id of the entity we place into the spawner example: minecraft:spider
      */
-    public void setSpawnerSubstance(int x, int y, int z, String entity, int dangerLevel) {
+    public void setSpawnerSubstance(int x, int y, int z, String entity, short dangerLevel) {
 //      get all tile entities
         NBTTag tileEntities = tag.getSubtagByName("Level").getSubtagByName("TileEntities");
 
