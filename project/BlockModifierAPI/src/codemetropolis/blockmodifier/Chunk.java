@@ -143,22 +143,17 @@ public class Chunk {
         NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, "z", z);
         NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", convertedEntity);
         NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
-
-        // Only for testing purposes
-        //TODO: delete this when testing is done
-        NBTTag maxSpawnDelayTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxSpawnDelay", 2);
-        NBTTag minSpawnDelayTag = new NBTTag(NBTTag.Type.TAG_Short, "MinSpawnDelay", 1);
+        NBTTag requiredPlayerRange = new NBTTag(NBTTag.Type.TAG_Short, "RequiredPlayerRange", (short) 16);
 
         NBTTag[] tagList;
 
-        //TODO: change this when testing is done with default MaxNearbyEntities values
-        if (entity.equals("minecraft:zombie")) {
+        if (dangerLevel > 0) {
             NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
-            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, maxSpawnDelayTag, minSpawnDelayTag,
+            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange,
                     maxNearbyEntitiesTag, new NBTTag(NBTTag.Type.TAG_End,null, null)};
         } else {
             // default values
-            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, maxSpawnDelayTag, minSpawnDelayTag,
+            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange,
                     new NBTTag(NBTTag.Type.TAG_End,null, null)};
         }
 

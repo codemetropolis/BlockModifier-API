@@ -27,7 +27,6 @@ public class World {
 		level.writeToFile();
 	}
 
-	//TODO: Remove all the added nulls and make dangerLevel parameter handling better
 	private void setBlock(int x, int y, int z, int type, int data, Object other, short dangerLvl) {
 		
 		if(y < 0 || y > 255) {
