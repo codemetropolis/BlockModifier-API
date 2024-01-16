@@ -108,36 +108,14 @@ public class Chunk {
      * @param entity entity id of the entity we place into the spawner example: minecraft:spider
      */
     public void setSpawnerSubstance(int x, int y, int z, String entity, short dangerLevel) {
-//      get all tile entities
-        NBTTag tileEntities = tag.getSubtagByName("Level").getSubtagByName("TileEntities");
+        NBTTag tileEntities = getAllTileEntities();
 
-//      create a new entity from the parameters
-        String convertedEntity = entity.replace("minecraft:", "").substring(0, 1).toUpperCase() +
-                entity.replace("minecraft:", "").substring(1);
-        NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, "id", convertedEntity);
-        NBTTag entityTag = new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId,
+        Map<String, Object> entityInfo = createEntityFromParameters(entity);
+        String convertedEntity = (String) entityInfo.get("convertedEntity");
+        NBTTag entityTag = (NBTTag) entityInfo.get("entityTag");
 
-                new NBTTag(NBTTag.Type.TAG_End, null, null)});
+        updateMobSpawnerEntity(tileEntities, x, y, z, entityTag);
 
-//      if we already have a tile entity spawner at the same position we got in parameter,
-//      we just set the NBT tag that describes what will the spawner spawn (EntityId) to our entity and return
-        for (NBTTag t : (NBTTag[]) tileEntities.getValue()) {
-            if (
-                    (int) t.getSubtagByName("x").getValue() == x &&
-                            (int) t.getSubtagByName("y").getValue() == y &&
-                            (int) t.getSubtagByName("z").getValue() == z &&
-                            ((String) t.getSubtagByName("id").getValue()).equals("MobSpawner")
-            ) {
-                t.getSubtagByName("EntityId").setValue(new NBTTag[]{entityTag, new NBTTag(NBTTag.Type.TAG_End,
-                        null, null)});
-                return;
-            }
-
-        }
-
-//      if we don't have a spawner tile entity in the position we got in parameter,
-//      we create a new tile entity with the position parameters (x, y, z), the id of the spawner block (MobSpawner),
-//      and we also set the NBT tag that sets the entity needed to spawn from the spawner (EntityId)
         NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, "x", x);
         NBTTag yTag = new NBTTag(NBTTag.Type.TAG_Int, "y", y);
         NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, "z", z);
@@ -145,22 +123,55 @@ public class Chunk {
         NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
         NBTTag requiredPlayerRange = new NBTTag(NBTTag.Type.TAG_Short, "RequiredPlayerRange", (short) 16);
 
-        NBTTag[] tagList;
-
-        if (dangerLevel > 0) {
-            NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
-            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange,
-                    maxNearbyEntitiesTag, new NBTTag(NBTTag.Type.TAG_End,null, null)};
-        } else {
-            // default values
-            tagList = new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange,
-                    new NBTTag(NBTTag.Type.TAG_End,null, null)};
-        }
+        NBTTag[] tagList = createTagList(dangerLevel, xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange);
 
         NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", tagList);
 
-//      then we add our new spawner tile entity to the rest of the tile entities
         tileEntities.addTag(tileEntityTag);
+    }
+
+    public NBTTag getAllTileEntities() {
+        return tag.getSubtagByName("Level").getSubtagByName("TileEntities");
+    }
+
+    public Map<String, Object> createEntityFromParameters(String entity) {
+        String convertedEntity = entity.replace("minecraft:", "").substring(0, 1).toUpperCase() +
+                entity.replace("minecraft:", "").substring(1);
+        NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, "id", convertedEntity);
+        NBTTag entityTag = new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId,
+                new NBTTag(NBTTag.Type.TAG_End, null, null)});
+
+        Map<String, Object> entityInfo = new HashMap<>();
+        entityInfo.put("convertedEntity", convertedEntity);
+        entityInfo.put("entityTag", entityTag);
+
+        return entityInfo;
+    }
+
+    public void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, NBTTag entityTag) {
+        for (NBTTag tileEntityTag : (NBTTag[]) tileEntities.getValue()) {
+            if (isSpawnerAlreadyExists(tileEntityTag, x, y, z)) {
+                tileEntityTag.getSubtagByName("EntityId").setValue(new NBTTag[]{entityTag,
+                        new NBTTag(NBTTag.Type.TAG_End, null, null)});
+                return;
+            }
+        }
+    }
+
+    private boolean isSpawnerAlreadyExists(NBTTag tileEntityTag, int x, int y, int z) {
+        return (int) tileEntityTag.getSubtagByName("x").getValue() == x &&
+                (int) tileEntityTag.getSubtagByName("y").getValue() == y &&
+                (int) tileEntityTag.getSubtagByName("z").getValue() == z &&
+                "MobSpawner".equals(tileEntityTag.getSubtagByName("id").getValue());
+    }
+
+    public NBTTag[] createTagList(short dangerLevel, NBTTag xTag, NBTTag yTag, NBTTag zTag, NBTTag idTag, NBTTag eIdTag,
+                                  NBTTag requiredPlayerRange) {
+        NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
+
+        return (dangerLevel > 0 ? new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange, maxNearbyEntitiesTag,
+                new NBTTag(NBTTag.Type.TAG_End, null, null)} : new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag,
+                requiredPlayerRange, new NBTTag(NBTTag.Type.TAG_End, null, null)});
     }
 
     public void setSignText(int x, int y, int z, String text) {
