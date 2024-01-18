@@ -132,11 +132,11 @@ public class Chunk {
         tileEntities.addTag(tileEntityTag);
     }
 
-    public NBTTag getAllTileEntities() {
+    private NBTTag getAllTileEntities() {
         return tag.getSubtagByName("Level").getSubtagByName("TileEntities");
     }
 
-    public Map<String, Object> createEntityFromParameters(String entity) {
+    private Map<String, Object> createEntityFromParameters(String entity) {
         String convertedEntity = entity.replace("minecraft:", "").substring(0, 1).toUpperCase() +
                 entity.replace("minecraft:", "").substring(1);
         NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, "id", convertedEntity);
@@ -150,7 +150,7 @@ public class Chunk {
         return entityInfo;
     }
 
-    public void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, NBTTag entityTag) {
+    private void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, NBTTag entityTag) {
         for (NBTTag tileEntityTag : (NBTTag[]) tileEntities.getValue()) {
             if (isSpawnerAlreadyExists(tileEntityTag, x, y, z)) {
                 tileEntityTag.getSubtagByName("EntityId").setValue(new NBTTag[]{entityTag,
@@ -167,7 +167,7 @@ public class Chunk {
                 "MobSpawner".equals(tileEntityTag.getSubtagByName("id").getValue());
     }
 
-    public NBTTag[] createTagList(short dangerLevel, NBTTag xTag, NBTTag yTag, NBTTag zTag, NBTTag idTag, NBTTag eIdTag,
+    private NBTTag[] createTagList(short dangerLevel, NBTTag xTag, NBTTag yTag, NBTTag zTag, NBTTag idTag, NBTTag eIdTag,
                                   NBTTag requiredPlayerRange) {
         NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
 
