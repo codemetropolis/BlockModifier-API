@@ -132,10 +132,17 @@ public class Chunk {
         tileEntities.addTag(tileEntityTag);
     }
 
+    /**
+     * This gets and gives back all the tile entities in the chunk
+     */
     private NBTTag getAllTileEntities() {
         return tag.getSubtagByName("Level").getSubtagByName("TileEntities");
     }
 
+    /**
+     * This method creates the entity based on the setSpawnerSubstance's entity parameter
+     * @param entity the entity's properties that we need to create the entity from
+     */
     private Map<String, Object> createEntityFromParameters(String entity) {
         String convertedEntity = entity.replace("minecraft:", "").substring(0, 1).toUpperCase() +
                 entity.replace("minecraft:", "").substring(1);
@@ -150,6 +157,16 @@ public class Chunk {
         return entityInfo;
     }
 
+    /**
+     * This method iterates through all the tile entities and checks if the spawner already exists, if it does then the
+     * method sets the spawner block NBT tags correctly depending on the entity and add it to the rest of the tile
+     * entities
+     * @param tileEntities the entities that are already in the chunk
+     * @param x x index of spawner
+     * @param y y index of spawner
+     * @param z z index of spawner
+     * @param entityTag specific tag for the entity
+     */
     private void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, NBTTag entityTag) {
         for (NBTTag tileEntityTag : (NBTTag[]) tileEntities.getValue()) {
             if (isSpawnerAlreadyExists(tileEntityTag, x, y, z)) {
@@ -160,6 +177,14 @@ public class Chunk {
         }
     }
 
+    /**
+     * This method sets the spawner block NBT tags correctly depending on the entity and add it to the rest of the tile
+     * entities
+     * @param x x index of spawner
+     * @param y y index of spawner
+     * @param z z index of spawner
+     * @param tileEntityTag the tag of the entity that is being checked
+     */
     private boolean isSpawnerAlreadyExists(NBTTag tileEntityTag, int x, int y, int z) {
         return (int) tileEntityTag.getSubtagByName("x").getValue() == x &&
                 (int) tileEntityTag.getSubtagByName("y").getValue() == y &&
@@ -167,6 +192,16 @@ public class Chunk {
                 "MobSpawner".equals(tileEntityTag.getSubtagByName("id").getValue());
     }
 
+    /**
+     * This method puts together the tag list for the spawner based on the previously created individual NBT tags
+     * @param dangerLevel the danger level associated with the spawner, can be between 1 and 10
+     * @param xTag the x coordinate tag of the spawner
+     * @param yTag the y coordinate tag of the spawner
+     * @param zTag the z coordinate tag of the spawner
+     * @param idTag the id tag of the spawner which will tell the game that it is a mob spawner block
+     * @param eIdTag the entity id tag of the spawner got from the setSpawnerSubstance method's entity parameter
+     * @param requiredPlayerRange the required player range which the player has to be in order for the spawner to function
+     */
     private NBTTag[] createTagList(short dangerLevel, NBTTag xTag, NBTTag yTag, NBTTag zTag, NBTTag idTag, NBTTag eIdTag,
                                   NBTTag requiredPlayerRange) {
         NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
