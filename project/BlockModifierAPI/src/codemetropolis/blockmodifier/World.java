@@ -26,6 +26,76 @@ public class World {
 		Level level = new Level(this);
 		level.writeToFile();
 	}
+	// beginnings
+
+//	private void setBlock(int x, int y, int z, int type, int data) {
+//		checkCoordinateYBoundaries(y);
+//
+//		int regionX = x >> 9;
+//		int regionZ = z >> 9;
+//		int chunkX = x >> 4;
+//		int chunkZ = z >> 4;
+//		int chunkIndexX = (x % 512) >> 4;
+//		int chunkIndexZ = (z % 512) >> 4;
+//		chunkIndexX = chunkIndexX < 0 ? chunkIndexX + 32 : chunkIndexX;
+//		chunkIndexZ = chunkIndexZ < 0 ? chunkIndexZ + 32 : chunkIndexZ;
+//		int blockX = (x % 512) % 16;
+//		int blockZ = (z % 512) % 16;
+//		blockX = x < 0 ? blockX + 15 : blockX;
+//		blockZ = z < 0 ? blockZ + 15 : blockZ;
+//
+//		int regionX = x >> 9;
+//		int regionZ = z >> 9;
+//		int chunkX = x >> 4;
+//		int chunkZ = z >> 4;
+//		int chunkIndexX = (x % 512) >> 4;
+//		int chunkIndexZ = (z % 512) >> 4;
+//		chunkIndexX = chunkIndexX < 0 ? chunkIndexX + 32 : chunkIndexX;
+//		chunkIndexZ = chunkIndexZ < 0 ? chunkIndexZ + 32 : chunkIndexZ;
+//		int blockX = (x % 512) % 16;
+//		int blockZ = (z % 512) % 16;
+//		blockX = x < 0 ? blockX + 15 : blockX;
+//		blockZ = z < 0 ? blockZ + 15 : blockZ;
+//
+//		Region region = getRegion(regionX, regionZ);
+//		Chunk chunk = region.getChunk(chunkIndexX, chunkIndexZ);
+//		if(chunk == null) {
+//			chunk = new Chunk(chunkX, chunkZ);
+//			if(groundBuilding)
+//				chunk.fill(GROUNDLEVEL, (byte) 2);
+//			region.setChunk(chunkIndexX, chunkIndexZ, chunk);
+//		}
+//		chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
+//
+//		placeBlockInChunk(type, other, dangerLvl, chunk, x, y, z);
+//	}
+//
+//	private void checkCoordinateYBoundaries(int y) {
+//		if(y < 0 || y > 255) {
+//			try {
+//				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
+//			} catch (NBTException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	}
+//
+//	private void placeBlockInChunk(int type, Object other, short dangerLvl, Chunk chunk, int x, int y, int z){
+//		if(type == 63 || type == 68) {
+//			chunk.setSignText(x, y, z, (String) other);
+//		} else if (type == 54) {
+//			chunk.clearChestItems(x, y, z);
+//			int[] items = (int[])other;
+//			for(int i = 0; i < items.length; i += 2)
+//				chunk.addChestItem(x, y, z, items[i], items[i+1]);
+//		} else if (type == 176) {
+//			chunk.setBannerColor(x, y, z, (int)other);
+//		} else if (type == 52) {
+//			chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
+//		} else {
+//			chunk.clearTileEntitiesAt(x, y, z);
+//		}
+//	}
 
 	private void setBlock(int x, int y, int z, int type, int data, Object other, short dangerLvl) {
 		
