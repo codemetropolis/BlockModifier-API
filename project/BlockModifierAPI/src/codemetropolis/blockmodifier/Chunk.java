@@ -111,50 +111,39 @@ public class Chunk {
      */
     public void setSpawnerSubstance(int x, int y, int z, String entity, short dangerLevel) {
         NBTTag tileEntities = getAllTileEntities();
-
-        Map<String, Object> entityInfo = createEntityFromParameters(entity);
-        String convertedEntity = (String) entityInfo.get("convertedEntity");
-        NBTTag entityTag = (NBTTag) entityInfo.get("entityTag");
+        String convertedEntity = convertEntityIntoCorrectForm(entity);
+        NBTTag entityTag = createEntityBasedOnCorrectName(convertedEntity);
 
         updateMobSpawnerEntity(tileEntities, x, y, z, entityTag);
 
-        NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, "x", x);
-        NBTTag yTag = new NBTTag(NBTTag.Type.TAG_Int, "y", y);
-        NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, "z", z);
-        NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", convertedEntity);
-        NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
-        NBTTag requiredPlayerRange = new NBTTag(NBTTag.Type.TAG_Short, "RequiredPlayerRange", (short) 16);
+        NBTTag[] spawnerNBTTags = createNBTTagListOfSpawner(dangerLevel, x, y, z, convertedEntity);
 
-        NBTTag[] tagList = createTagList(dangerLevel, xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange);
-
-        NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", tagList);
+        NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", spawnerNBTTags);
 
         tileEntities.addTag(tileEntityTag);
     }
 
-    /**
-     * This gets and gives back all the tile entities in the chunk
-     */
     private NBTTag getAllTileEntities() {
         return tag.getSubtagByName("Level").getSubtagByName("TileEntities");
     }
 
     /**
-     * This method creates the entity based on the setSpawnerSubstance's entity parameter
-     * @param entity the entity's properties that we need to create the entity from
+     * This method cuts the "minecraft:" part of an entity's name and then capitalizes it for the NBT tag creation
+     * @param entity the entity's name which name's format needs to be corrected
      */
-    private Map<String, Object> createEntityFromParameters(String entity) {
-        String convertedEntity = entity.replace("minecraft:", "").substring(0, 1).toUpperCase() +
-                entity.replace("minecraft:", "").substring(1);
+    private String convertEntityIntoCorrectForm(String entity) {
+        String cutEntity = entity.replace("minecraft:", "");
+        return cutEntity.substring(0, 1).toUpperCase() + cutEntity.substring(1);
+    }
+
+    /**
+     * This method creates a new entity NBT tag based on the correct NBT format
+     * @param convertedEntity the name of the entity which is already in the correct format
+     */
+    private NBTTag createEntityBasedOnCorrectName(String convertedEntity) {
         NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, "id", convertedEntity);
-        NBTTag entityTag = new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId,
+        return new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId,
                 new NBTTag(NBTTag.Type.TAG_End, null, null)});
-
-        Map<String, Object> entityInfo = new HashMap<>();
-        entityInfo.put("convertedEntity", convertedEntity);
-        entityInfo.put("entityTag", entityTag);
-
-        return entityInfo;
     }
 
     /**
@@ -178,8 +167,7 @@ public class Chunk {
     }
 
     /**
-     * This method sets the spawner block NBT tags correctly depending on the entity and add it to the rest of the tile
-     * entities
+     * This method sets checks if the spawner exists at a certain coordinate with the correct spawner NBTTag
      * @param x x index of spawner
      * @param y y index of spawner
      * @param z z index of spawner
@@ -195,15 +183,18 @@ public class Chunk {
     /**
      * This method puts together the tag list for the spawner based on the previously created individual NBT tags
      * @param dangerLevel the danger level associated with the spawner, can be between 1 and 10
-     * @param xTag the x coordinate tag of the spawner
-     * @param yTag the y coordinate tag of the spawner
-     * @param zTag the z coordinate tag of the spawner
-     * @param idTag the id tag of the spawner which will tell the game that it is a mob spawner block
-     * @param eIdTag the entity id tag of the spawner got from the setSpawnerSubstance method's entity parameter
-     * @param requiredPlayerRange the required player range which the player has to be in order for the spawner to function
+     * @param x the x coordinate of the spawner
+     * @param y the y coordinate of the spawner
+     * @param z the z coordinate of the spawner
+     * @param convertedEntity the correct form of the entity's name which is accepted by the NBT tag creation process
      */
-    private NBTTag[] createTagList(short dangerLevel, NBTTag xTag, NBTTag yTag, NBTTag zTag, NBTTag idTag, NBTTag eIdTag,
-                                  NBTTag requiredPlayerRange) {
+    private NBTTag[] createNBTTagListOfSpawner(short dangerLevel, int x, int y, int z, String convertedEntity) {
+        NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, "x", x);
+        NBTTag yTag = new NBTTag(NBTTag.Type.TAG_Int, "y", y);
+        NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, "z", z);
+        NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", convertedEntity);
+        NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
+        NBTTag requiredPlayerRange = new NBTTag(NBTTag.Type.TAG_Short, "RequiredPlayerRange", (short) 16);
         NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
 
         return (dangerLevel > 0 ? new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange, maxNearbyEntitiesTag,
