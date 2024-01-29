@@ -27,107 +27,108 @@ public class World {
 		level.writeToFile();
 	}
 
-	private Chunk setBlockInChunk(int x, int y, int z, int type, int data) {
-		checkCoordinateYBoundaries(y);
+    private Chunk setBlockInChunk(int x, int y, int z, int type, int data) {
+        checkCoordinateYBoundaries(y);
 
-		int regionX = getRegionCoordinate(x);
-		int regionZ = getRegionCoordinate(z);
+        int regionX = getRegionCoordinate(x);
+        int regionZ = getRegionCoordinate(z);
 
-		int chunkX = getChunkCoordinate(x);
-		int chunkZ = getChunkCoordinate(z);
-		int chunkIndexX = getChunkIndex(x);
-		int chunkIndexZ = getChunkIndex(z);
+        int chunkX = getChunkCoordinate(x);
+        int chunkZ = getChunkCoordinate(z);
+        int chunkIndexX = getChunkIndex(x);
+        int chunkIndexZ = getChunkIndex(z);
 
-		int blockX = getBlockCoordinate(x);
-		int blockZ = getBlockCoordinate(z);
+        int blockX = getBlockCoordinate(x);
+        int blockZ = getBlockCoordinate(z);
 
-		return locateChunk(chunkIndexX, chunkIndexZ, chunkX, chunkZ, regionX, regionZ, blockX, y, blockZ, type, data);
-	}
+        return locateChunk(chunkIndexX, chunkIndexZ, chunkX, chunkZ, regionX, regionZ, blockX, y, blockZ, type, data);
+    }
 
-	private int getRegionCoordinate(int a) {
-		return a >> 9;
-	}
+    private int getRegionCoordinate(int a) {
+        return a >> 9;
+    }
 
-	private int getChunkCoordinate(int a) {
-		return a >> 4;
-	}
+    private int getChunkCoordinate(int a) {
+        return a >> 4;
+    }
 
-	private int getChunkIndex(int a) {
-		int chunkIndexA = (a % 512) >> 4;
-		chunkIndexA = chunkIndexA < 0 ? chunkIndexA + 32 : chunkIndexA;
+    private int getChunkIndex(int a) {
+        int chunkIndexA = (a % 512) >> 4;
+        chunkIndexA = chunkIndexA < 0 ? chunkIndexA + 32 : chunkIndexA;
 
-		return chunkIndexA;
-	}
+        return chunkIndexA;
+    }
 
-	private int getBlockCoordinate(int a) {
-		int blockA = (a % 512) % 16;
-		blockA = a < 0 ? blockA + 15 : blockA;
+    private int getBlockCoordinate(int a) {
+        int blockA = (a % 512) % 16;
+        blockA = a < 0 ? blockA + 15 : blockA;
 
-		return blockA;
-	}
+        return blockA;
+    }
 
-	private Chunk locateChunk(int xChunkIndex, int zChunkIndex, int chunkX, int chunkZ, int regionX, int regionZ,
-							  int blockX, int y, int blockZ, int type, int data){
-		Region region = getRegion(regionX, regionZ);
-		Chunk chunk = region.getChunk(xChunkIndex, zChunkIndex);
-		if(chunk == null) {
-			chunk = new Chunk(chunkX, chunkZ);
-			if(groundBuilding)
-				chunk.fill(GROUNDLEVEL, (byte) 2);
-			region.setChunk(xChunkIndex, zChunkIndex, chunk);
-		}
+    private Chunk locateChunk(int xChunkIndex, int zChunkIndex, int chunkX, int chunkZ, int regionX, int regionZ,
+                              int blockX, int y, int blockZ, int type, int data) {
+        Region region = getRegion(regionX, regionZ);
+        Chunk chunk = region.getChunk(xChunkIndex, zChunkIndex);
+        if (chunk == null) {
+            chunk = new Chunk(chunkX, chunkZ);
+            if (groundBuilding)
+                chunk.fill(GROUNDLEVEL, (byte) 2);
+            region.setChunk(xChunkIndex, zChunkIndex, chunk);
+        }
 
-		chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
+        chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
 
-		return chunk;
-	}
-	private void setBlock(int x, int y, int z, int type, int data, String text){
-		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-		currentChunk.setSignText(x, y, z, text);
-	}
+        return chunk;
+    }
 
-	private void setBlock(int x, int y, int z, int type, int data, int[] items){
-		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-		for(int i = 0; i < items.length; i += 2)
-			currentChunk.addChestItem(x, y, z, items[i], items[i+1]);
-	}
+    private void setBlock(int x, int y, int z, int type, int data, String text) {
+        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+        currentChunk.setSignText(x, y, z, text);
+    }
 
-	private void setBlock(int x, int y, int z, int type, int data, int color){
-		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-		currentChunk.setBannerColor(x, y, z, color);
-	}
+    private void setBlock(int x, int y, int z, int type, int data, int[] items) {
+        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+        for (int i = 0; i < items.length; i += 2)
+            currentChunk.addChestItem(x, y, z, items[i], items[i + 1]);
+    }
 
-	 private void setBlock(int x, int y, int z, int type, int data, String entityId, Short dangerLevel){
-		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-		currentChunk.setSpawnerSubstance(x, y, z, entityId, dangerLevel);
-	 }
+    private void setBlock(int x, int y, int z, int type, int data, int color) {
+        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+        currentChunk.setBannerColor(x, y, z, color);
+    }
 
-	private void checkCoordinateYBoundaries(int y) {
-		if(y < 0 || y > 255) {
-			try {
-				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
-			} catch (NBTException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    private void setBlock(int x, int y, int z, int type, int data, String entityId, Short dangerLevel) {
+        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+        currentChunk.setSpawnerSubstance(x, y, z, entityId, dangerLevel);
+    }
 
-	private void placeBlockInChunk(Chunk chunk, int x, int y, int z, int type, Object other, short dangerLvl){
-		if(type == 63 || type == 68) {
-			chunk.setSignText(x, y, z, (String) other);
-		} else if (type == 54) {
-			chunk.clearChestItems(x, y, z);
-			int[] items = (int[])other;
-			for(int i = 0; i < items.length; i += 2)
-				chunk.addChestItem(x, y, z, items[i], items[i+1]);
-		} else if (type == 176) {
-			chunk.setBannerColor(x, y, z, (int)other);
-		} else if (type == 52) {
-			chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
-		} else {
-			chunk.clearTileEntitiesAt(x, y, z);
-		}
-	}
+    private void checkCoordinateYBoundaries(int y) {
+        if (y < 0 || y > 255) {
+            try {
+                throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
+            } catch (NBTException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void placeBlockInChunk(Chunk chunk, int x, int y, int z, int type, Object other, short dangerLvl) {
+        if (type == 63 || type == 68) {
+            chunk.setSignText(x, y, z, (String) other);
+        } else if (type == 54) {
+            chunk.clearChestItems(x, y, z);
+            int[] items = (int[]) other;
+            for (int i = 0; i < items.length; i += 2)
+                chunk.addChestItem(x, y, z, items[i], items[i + 1]);
+        } else if (type == 176) {
+            chunk.setBannerColor(x, y, z, (int) other);
+        } else if (type == 52) {
+            chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
+        } else {
+            chunk.clearTileEntitiesAt(x, y, z);
+        }
+    }
 
 //	private void setBlock(int x, int y, int z, int type, int data, Object other, short dangerLvl) {
 //
@@ -183,71 +184,73 @@ public class World {
 //		}
 //
 //	}
-	
-	public void setBlock(int x, int y, int z, int type, int data) {
-		setBlockInChunk(x, y, z, type, data);
-	}
 
-	public void setBlock(int x, int y, int z, int type) {
-		setBlock(x, y, z, type, 0);
-	}
+    public void setBlock(int x, int y, int z, int type, int data) {
+        setBlockInChunk(x, y, z, type, data);
+    }
 
-	public void removeBlock(int x, int y, int z) {
-		setBlock(x, y, z, 0);
-	}
-	
-	public void setSignPost(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 63, data, text);
-	}
-	
-	public void setSignPost(int x, int y, int z, String text) {
-		setSignPost(x, y, z, 0, text);
-	}
-	
-	public void setWallSign(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 68, data, text);
-	}
-	
-	public void setWallSign(int x, int y, int z, String text) {
-		setWallSign(x, y, z, 0, text);
-	}
+    public void setBlock(int x, int y, int z, int type) {
+        setBlock(x, y, z, type, 0);
+    }
 
-	/**
-	 * This method sets the spawner blocks that it receives, the type 52 is the code of spawners
-	 * @param x x index of spawner
-	 * @param y y index of spawner
-	 * @param z z index of spawner
-	 * @param data data of block
-	 * @param entityId name of entity that spawner spawns, example: minecraft:zombie
-	 */
-	public void setSpawner(int x, int y, int z, int data, String entityId, Short dangerLevel) {
-		setBlock(x, y, z, 52, data, entityId, dangerLevel);
-	}
+    public void removeBlock(int x, int y, int z) {
+        setBlock(x, y, z, 0);
+    }
 
-	/**
-	 * This method receives the position data and monster entity of spawner blocks from codemetropolis and forwards them
-	 * to another method that setBlock by data's
-	 * @param x x index of spawner
-	 * @param y y index of spawner
-	 * @param z z index of spawner
-	 * @param entityId name of entity that spawner spawns, example: minecraft:zombie
-	 */
-	public void setSpawner(int x, int y, int z, String entityId, Short dangerLevel) {
-		setSpawner(x, y, z, 0, entityId, dangerLevel);
-	}
+    public void setSignPost(int x, int y, int z, int data, String text) {
+        setBlock(x, y, z, 63, data, text);
+    }
 
-	public void setChest(int x, int y, int z, int data, int[] items) {
-		setBlock(x, y, z, 54, data, items);
-	}
-	
-	public void setChest(int x, int y, int z, int[] items) {
-		setChest(x, y, z, 0, items);
-	}
-	
-	public void setBanner(int x, int y, int z, int data, BannerColor color) {
-		setBlock(x, y, z, 176, data, color.ordinal());
-	}
-	
+    public void setSignPost(int x, int y, int z, String text) {
+        setSignPost(x, y, z, 0, text);
+    }
+
+    public void setWallSign(int x, int y, int z, int data, String text) {
+        setBlock(x, y, z, 68, data, text);
+    }
+
+    public void setWallSign(int x, int y, int z, String text) {
+        setWallSign(x, y, z, 0, text);
+    }
+
+    /**
+     * This method sets the spawner blocks that it receives, the type 52 is the code of spawners
+     *
+     * @param x x index of spawner
+     * @param y y index of spawner
+     * @param z z index of spawner
+     * @param data data of block
+     * @param entityId name of entity that spawner spawns, example: minecraft:zombie
+     */
+    public void setSpawner(int x, int y, int z, int data, String entityId, Short dangerLevel) {
+        setBlock(x, y, z, 52, data, entityId, dangerLevel);
+    }
+
+    /**
+     * This method receives the position data and monster entity of spawner blocks from codemetropolis and forwards them
+     * to another method that setBlock by data's
+     *
+     * @param x x index of spawner
+     * @param y y index of spawner
+     * @param z z index of spawner
+     * @param entityId name of entity that spawner spawns, example: minecraft:zombie
+     */
+    public void setSpawner(int x, int y, int z, String entityId, Short dangerLevel) {
+        setSpawner(x, y, z, 0, entityId, dangerLevel);
+    }
+
+    public void setChest(int x, int y, int z, int data, int[] items) {
+        setBlock(x, y, z, 54, data, items);
+    }
+
+    public void setChest(int x, int y, int z, int[] items) {
+        setChest(x, y, z, 0, items);
+    }
+
+    public void setBanner(int x, int y, int z, int data, BannerColor color) {
+        setBlock(x, y, z, 176, data, color.ordinal());
+    }
+
 	private Region getRegion(int x, int z) {
 		
 		for(Region r : loadedRegions) {
