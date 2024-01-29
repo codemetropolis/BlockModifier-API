@@ -3,6 +3,7 @@ package codemetropolis.blockmodifier;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import codemetropolis.blockmodifier.ext.NBTException;
@@ -41,7 +42,15 @@ public class World {
         int blockX = getBlockCoordinate(x);
         int blockZ = getBlockCoordinate(z);
 
-        return locateChunk(chunkIndexX, chunkIndexZ, chunkX, chunkZ, regionX, regionZ, blockX, y, blockZ, type, data);
+        Chunk activeChunk = locateChunk(chunkIndexX, chunkIndexZ, chunkX, chunkZ, regionX, regionZ, blockX, y, blockZ, type, data);
+
+        int[] blockTypes = new int[]{63, 68, 54, 176, 52};
+        Arrays.sort(blockTypes);
+        if (Arrays.binarySearch(blockTypes, type) >= 0) {
+            activeChunk.clearTileEntitiesAt(blockX, y, blockZ);
+        }
+
+        return activeChunk;
     }
 
     private int getRegionCoordinate(int a) {
@@ -112,78 +121,6 @@ public class World {
             }
         }
     }
-
-    private void placeBlockInChunk(Chunk chunk, int x, int y, int z, int type, Object other, short dangerLvl) {
-        if (type == 63 || type == 68) {
-            chunk.setSignText(x, y, z, (String) other);
-        } else if (type == 54) {
-            chunk.clearChestItems(x, y, z);
-            int[] items = (int[]) other;
-            for (int i = 0; i < items.length; i += 2)
-                chunk.addChestItem(x, y, z, items[i], items[i + 1]);
-        } else if (type == 176) {
-            chunk.setBannerColor(x, y, z, (int) other);
-        } else if (type == 52) {
-            chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
-        } else {
-            chunk.clearTileEntitiesAt(x, y, z);
-        }
-    }
-
-//	private void setBlock(int x, int y, int z, int type, int data, Object other, short dangerLvl) {
-//
-//		if(y < 0 || y > 255) {
-//			try {
-//				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
-//			} catch (NBTException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//
-//		//todo: region, chunk es block resz kiszervezheto metodus struct vagy valamibe es igy visszaadni
-//		int regionX = x >> 9;
-//		int regionZ = z >> 9;
-//
-//		int chunkX = x >> 4;
-//		int chunkZ = z >> 4;
-//		int chunkIndexX = (x % 512) >> 4;
-//		int chunkIndexZ = (z % 512) >> 4;
-//		chunkIndexX = chunkIndexX < 0 ? chunkIndexX + 32 : chunkIndexX;
-//		chunkIndexZ = chunkIndexZ < 0 ? chunkIndexZ + 32 : chunkIndexZ;
-//
-//		int blockX = (x % 512) % 16;
-//		int blockZ = (z % 512) % 16;
-//		blockX = x < 0 ? blockX + 15 : blockX;
-//		blockZ = z < 0 ? blockZ + 15 : blockZ;
-//
-//		Region region = getRegion(regionX, regionZ);
-//		Chunk chunk = region.getChunk(chunkIndexX, chunkIndexZ);
-//		if(chunk == null) {
-//			chunk = new Chunk(chunkX, chunkZ);
-//			if(groundBuilding)
-//				chunk.fill(GROUNDLEVEL, (byte) 2);
-//			region.setChunk(chunkIndexX, chunkIndexZ, chunk);
-//		}
-//		chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
-//
-//		if(type == 63 || type == 68) {
-//			chunk.setSignText(x, y, z, (String) other);
-//		} else if (type == 54) {
-//			chunk.clearChestItems(x, y, z);
-//			int[] items = (int[])other;
-//			for(int i = 0; i < items.length; i += 2)
-//				chunk.addChestItem(x, y, z, items[i], items[i+1]);
-//		} else if (type == 176) {
-//			chunk.setBannerColor(x, y, z, (int)other);
-//
-////		If we are getting spawner block, we set its nbt tags based on the parameters
-//		} else if (type == 52) {
-//			chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
-//		} else {
-//			chunk.clearTileEntitiesAt(x, y, z);
-//		}
-//
-//	}
 
     public void setBlock(int x, int y, int z, int type, int data) {
         setBlockInChunk(x, y, z, type, data);
