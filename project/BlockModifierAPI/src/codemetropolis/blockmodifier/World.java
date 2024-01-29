@@ -26,32 +26,120 @@ public class World {
 		Level level = new Level(this);
 		level.writeToFile();
 	}
-	// beginnings
 
-//	private void setBlock(int x, int y, int z, int type, int data) {
-//		checkCoordinateYBoundaries(y);
+	private Chunk setBlockInChunk(int x, int y, int z, int type, int data) {
+		checkCoordinateYBoundaries(y);
+
+		int regionX = getRegionCoordinate(x);
+		int regionZ = getRegionCoordinate(z);
+
+		int chunkX = getChunkCoordinate(x);
+		int chunkZ = getChunkCoordinate(z);
+		int chunkIndexX = getChunkIndex(x);
+		int chunkIndexZ = getChunkIndex(z);
+
+		int blockX = getBlockCoordinate(x);
+		int blockZ = getBlockCoordinate(z);
+
+		return locateChunk(chunkIndexX, chunkIndexZ, chunkX, chunkZ, regionX, regionZ, blockX, y, blockZ, type, data);
+	}
+
+	private int getRegionCoordinate(int a) {
+		return a >> 9;
+	}
+
+	private int getChunkCoordinate(int a) {
+		return a >> 4;
+	}
+
+	private int getChunkIndex(int a) {
+		int chunkIndexA = (a % 512) >> 4;
+		chunkIndexA = chunkIndexA < 0 ? chunkIndexA + 32 : chunkIndexA;
+
+		return chunkIndexA;
+	}
+
+	private int getBlockCoordinate(int a) {
+		int blockA = (a % 512) % 16;
+		blockA = a < 0 ? blockA + 15 : blockA;
+
+		return blockA;
+	}
+
+	private Chunk locateChunk(int xChunkIndex, int zChunkIndex, int chunkX, int chunkZ, int regionX, int regionZ,
+							  int blockX, int y, int blockZ, int type, int data){
+		Region region = getRegion(regionX, regionZ);
+		Chunk chunk = region.getChunk(xChunkIndex, zChunkIndex);
+		if(chunk == null) {
+			chunk = new Chunk(chunkX, chunkZ);
+			if(groundBuilding)
+				chunk.fill(GROUNDLEVEL, (byte) 2);
+			region.setChunk(xChunkIndex, zChunkIndex, chunk);
+		}
+
+		chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
+
+		return chunk;
+	}
+	private void setBlock(int x, int y, int z, int type, int data, String text){
+		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+		currentChunk.setSignText(x, y, z, text);
+	}
+
+//	private void setBlock(int x, int y, int z, int type, int data, int[] items){
+//		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+//		for(int i = 0; i < items.length; i += 2)
+//			currentChunk.addChestItem(x, y, z, items[i], items[i+1]);
+//	}
+
+	private void checkCoordinateYBoundaries(int y) {
+		if(y < 0 || y > 255) {
+			try {
+				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
+			} catch (NBTException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void placeBlockInChunk(Chunk chunk, int x, int y, int z, int type, Object other, short dangerLvl){
+		if(type == 63 || type == 68) {
+			chunk.setSignText(x, y, z, (String) other);
+		} else if (type == 54) {
+			chunk.clearChestItems(x, y, z);
+			int[] items = (int[])other;
+			for(int i = 0; i < items.length; i += 2)
+				chunk.addChestItem(x, y, z, items[i], items[i+1]);
+		} else if (type == 176) {
+			chunk.setBannerColor(x, y, z, (int)other);
+		} else if (type == 52) {
+			chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
+		} else {
+			chunk.clearTileEntitiesAt(x, y, z);
+		}
+	}
+
+//	private void setBlock(int x, int y, int z, int type, int data, Object other, short dangerLvl) {
 //
+//		if(y < 0 || y > 255) {
+//			try {
+//				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
+//			} catch (NBTException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		//todo: region, chunk es block resz kiszervezheto metodus struct vagy valamibe es igy visszaadni
 //		int regionX = x >> 9;
 //		int regionZ = z >> 9;
+//
 //		int chunkX = x >> 4;
 //		int chunkZ = z >> 4;
 //		int chunkIndexX = (x % 512) >> 4;
 //		int chunkIndexZ = (z % 512) >> 4;
 //		chunkIndexX = chunkIndexX < 0 ? chunkIndexX + 32 : chunkIndexX;
 //		chunkIndexZ = chunkIndexZ < 0 ? chunkIndexZ + 32 : chunkIndexZ;
-//		int blockX = (x % 512) % 16;
-//		int blockZ = (z % 512) % 16;
-//		blockX = x < 0 ? blockX + 15 : blockX;
-//		blockZ = z < 0 ? blockZ + 15 : blockZ;
 //
-//		int regionX = x >> 9;
-//		int regionZ = z >> 9;
-//		int chunkX = x >> 4;
-//		int chunkZ = z >> 4;
-//		int chunkIndexX = (x % 512) >> 4;
-//		int chunkIndexZ = (z % 512) >> 4;
-//		chunkIndexX = chunkIndexX < 0 ? chunkIndexX + 32 : chunkIndexX;
-//		chunkIndexZ = chunkIndexZ < 0 ? chunkIndexZ + 32 : chunkIndexZ;
 //		int blockX = (x % 512) % 16;
 //		int blockZ = (z % 512) % 16;
 //		blockX = x < 0 ? blockX + 15 : blockX;
@@ -67,20 +155,6 @@ public class World {
 //		}
 //		chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
 //
-//		placeBlockInChunk(type, other, dangerLvl, chunk, x, y, z);
-//	}
-//
-//	private void checkCoordinateYBoundaries(int y) {
-//		if(y < 0 || y > 255) {
-//			try {
-//				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
-//			} catch (NBTException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//	}
-//
-//	private void placeBlockInChunk(int type, Object other, short dangerLvl, Chunk chunk, int x, int y, int z){
 //		if(type == 63 || type == 68) {
 //			chunk.setSignText(x, y, z, (String) other);
 //		} else if (type == 54) {
@@ -90,79 +164,31 @@ public class World {
 //				chunk.addChestItem(x, y, z, items[i], items[i+1]);
 //		} else if (type == 176) {
 //			chunk.setBannerColor(x, y, z, (int)other);
+//
+////		If we are getting spawner block, we set its nbt tags based on the parameters
 //		} else if (type == 52) {
 //			chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
 //		} else {
 //			chunk.clearTileEntitiesAt(x, y, z);
 //		}
+//
 //	}
 
-	private void setBlock(int x, int y, int z, int type, int data, Object other, short dangerLvl) {
-		
-		if(y < 0 || y > 255) {
-			try {
-				throw new NBTException("Block's 'y' coordinate must be between 0 and 255");
-			} catch (NBTException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		int regionX = x >> 9;
-		int regionZ = z >> 9;
-		int chunkX = x >> 4;
-		int chunkZ = z >> 4;
-		int chunkIndexX = (x % 512) >> 4;
-		int chunkIndexZ = (z % 512) >> 4;
-		chunkIndexX = chunkIndexX < 0 ? chunkIndexX + 32 : chunkIndexX;
-		chunkIndexZ = chunkIndexZ < 0 ? chunkIndexZ + 32 : chunkIndexZ;
-		int blockX = (x % 512) % 16;
-		int blockZ = (z % 512) % 16;
-		blockX = x < 0 ? blockX + 15 : blockX;
-		blockZ = z < 0 ? blockZ + 15 : blockZ;
-		
-		Region region = getRegion(regionX, regionZ);
-		Chunk chunk = region.getChunk(chunkIndexX, chunkIndexZ);
-		if(chunk == null) {
-			chunk = new Chunk(chunkX, chunkZ);
-			if(groundBuilding)
-				chunk.fill(GROUNDLEVEL, (byte) 2);
-			region.setChunk(chunkIndexX, chunkIndexZ, chunk);
-		}
-		chunk.setBlock(blockX, y, blockZ, (byte) type, (byte) data);
-		
-		if(type == 63 || type == 68) {
-			chunk.setSignText(x, y, z, (String) other);
-		} else if (type == 54) {
-			chunk.clearChestItems(x, y, z);
-			int[] items = (int[])other;
-			for(int i = 0; i < items.length; i += 2)
-				chunk.addChestItem(x, y, z, items[i], items[i+1]);
-		} else if (type == 176) {
-			chunk.setBannerColor(x, y, z, (int)other);
-
-//		If we are getting spawner block, we set its nbt tags based on the parameters
-		} else if (type == 52) {
-			chunk.setSpawnerSubstance(x, y, z, (String) other, dangerLvl);
-		} else {
-			chunk.clearTileEntitiesAt(x, y, z);
-		}
-		
-	}
-	
-	public void setBlock(int x, int y, int z, int type, int data) {
-		setBlock(x, y, z, type, data, null, (short) 0);
-	}
-	
-	public void setBlock(int x, int y, int z, int type) {
-		setBlock(x, y, z, type, 0, null, (short) 0);
-	}
-	
-	public void removeBlock(int x, int y, int z) {
-		setBlock(x, y, z, 0);
-	}
+	//TODO: uncomment the below 3 when finished
+//	public void setBlock(int x, int y, int z, int type, int data) {
+//		setBlock(x, y, z, type, data);
+//	}
+//
+//	public void setBlock(int x, int y, int z, int type) {
+//		setBlock(x, y, z, type, 0);
+//	}
+//
+//	public void removeBlock(int x, int y, int z) {
+//		setBlock(x, y, z, 0);
+//	}
 	
 	public void setSignPost(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 63, data, text, (short) 0);
+		setBlock(x, y, z, 63, data, text);
 	}
 	
 	public void setSignPost(int x, int y, int z, String text) {
@@ -170,7 +196,7 @@ public class World {
 	}
 	
 	public void setWallSign(int x, int y, int z, int data, String text) {
-		setBlock(x, y, z, 68, data, text, (short) 0);
+		setBlock(x, y, z, 68, data, text);
 	}
 	
 	public void setWallSign(int x, int y, int z, String text) {
@@ -202,15 +228,15 @@ public class World {
 	}
 
 	public void setChest(int x, int y, int z, int data, int[] items) {
-		setBlock(x, y, z, 54, data, items, (short) 0);
+		setBlock(x, y, z, 54, data, items);
 	}
 	
 	public void setChest(int x, int y, int z, int[] items) {
-		setChest(x, y, z, 0, items);	
+		setChest(x, y, z, 0, items);
 	}
 	
 	public void setBanner(int x, int y, int z, int data, BannerColor color) {
-		setBlock(x, y, z, 176, data, color.ordinal(), (short) 0);
+		setBlock(x, y, z, 176, data, color.ordinal());
 	}
 	
 	private Region getRegion(int x, int z) {
