@@ -86,11 +86,21 @@ public class World {
 		currentChunk.setSignText(x, y, z, text);
 	}
 
-//	private void setBlock(int x, int y, int z, int type, int data, int[] items){
-//		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-//		for(int i = 0; i < items.length; i += 2)
-//			currentChunk.addChestItem(x, y, z, items[i], items[i+1]);
-//	}
+	private void setBlock(int x, int y, int z, int type, int data, int[] items){
+		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+		for(int i = 0; i < items.length; i += 2)
+			currentChunk.addChestItem(x, y, z, items[i], items[i+1]);
+	}
+
+	private void setBlock(int x, int y, int z, int type, int data, int color){
+		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+		currentChunk.setBannerColor(x, y, z, color);
+	}
+
+	 private void setBlock(int x, int y, int z, int type, int data, String entityId, Short dangerLevel){
+		Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
+		currentChunk.setSpawnerSubstance(x, y, z, entityId, dangerLevel);
+	 }
 
 	private void checkCoordinateYBoundaries(int y) {
 		if(y < 0 || y > 255) {
@@ -173,19 +183,18 @@ public class World {
 //		}
 //
 //	}
+	
+	public void setBlock(int x, int y, int z, int type, int data) {
+		setBlockInChunk(x, y, z, type, data);
+	}
 
-	//TODO: uncomment the below 3 when finished
-//	public void setBlock(int x, int y, int z, int type, int data) {
-//		setBlock(x, y, z, type, data);
-//	}
-//
-//	public void setBlock(int x, int y, int z, int type) {
-//		setBlock(x, y, z, type, 0);
-//	}
-//
-//	public void removeBlock(int x, int y, int z) {
-//		setBlock(x, y, z, 0);
-//	}
+	public void setBlock(int x, int y, int z, int type) {
+		setBlock(x, y, z, type, 0);
+	}
+
+	public void removeBlock(int x, int y, int z) {
+		setBlock(x, y, z, 0);
+	}
 	
 	public void setSignPost(int x, int y, int z, int data, String text) {
 		setBlock(x, y, z, 63, data, text);
