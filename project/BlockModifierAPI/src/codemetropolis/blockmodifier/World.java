@@ -91,22 +91,34 @@ public class World {
         return chunk;
     }
 
+    /**
+     * Overloaded block setting method for sign type blocks
+     */
     private void setBlock(int x, int y, int z, int type, int data, String text) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
         currentChunk.setSignText(x, y, z, text);
     }
 
+    /**
+     * Overloaded block setting method for chest type blocks
+     */
     private void setBlock(int x, int y, int z, int type, int data, int[] items) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
         for (int i = 0; i < items.length; i += 2)
             currentChunk.addChestItem(x, y, z, items[i], items[i + 1]);
     }
 
+    /**
+     * Overloaded block setting method for banner type blocks
+     */
     private void setBlock(int x, int y, int z, int type, int data, int color) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
         currentChunk.setBannerColor(x, y, z, color);
     }
 
+    /**
+     * Overloaded block setting method for spawner type blocks
+     */
     private void setBlock(int x, int y, int z, int type, int data, String entityId, Short dangerLevel) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
         currentChunk.setSpawnerSubstance(x, y, z, entityId, dangerLevel);

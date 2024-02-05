@@ -100,8 +100,8 @@ public class Chunk {
             heightMap[z * 16 + x] = y + 1;
     }
     /**
-     * This method sets the spawner block NBT tags correctly depending on the entity and add it to the rest of the tile
-     * entities
+     * This method sets the spawner block NBT tags correctly depending on the entity, and then adds it to the rest of the
+     * tile entities
      * @param x x index of spawner
      * @param y y index of spawner
      * @param z z index of spawner
