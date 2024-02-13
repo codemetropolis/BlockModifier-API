@@ -92,7 +92,15 @@ public class World {
     }
 
     /**
-     * Overloaded block setting method for sign type blocks
+     * This method sets a sign block in the world at the specified coordinates with the specified data, and text.
+     * This method is specifically for sign blocks.
+     *
+     * @param x the x-coordinate of the block
+     * @param y the y-coordinate of the block
+     * @param z the z-coordinate of the block
+     * @param type the type of the block
+     * @param data the data of the block, example: the type of wood the sign is made of
+     * @param text the text of the sign
      */
     private void setBlock(int x, int y, int z, int type, int data, String text) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
@@ -100,7 +108,15 @@ public class World {
     }
 
     /**
-     * Overloaded block setting method for chest type blocks
+     * This method sets a chest block in the world at the specified coordinates with the specified data, and items.
+     * This method is specifically for chest blocks.
+     *
+     * @param x the x-coordinate of the block
+     * @param y the y-coordinate of the block
+     * @param z the z-coordinate of the block
+     * @param type the type of the block
+     * @param data the data of the block, example: the orientation of the chest
+     * @param items the items stored in the chest
      */
     private void setBlock(int x, int y, int z, int type, int data, int[] items) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
@@ -109,7 +125,15 @@ public class World {
     }
 
     /**
-     * Overloaded block setting method for banner type blocks
+     * This method sets a banner block in the world at the specified coordinates with the specified data, and items.
+     * This method is specifically for banner blocks.
+     *
+     * @param x the x-coordinate of the block
+     * @param y the y-coordinate of the block
+     * @param z the z-coordinate of the block
+     * @param type the type of the block
+     * @param data the data of the block, example: the orientation of the flag
+     * @param color the color of the banner
      */
     private void setBlock(int x, int y, int z, int type, int data, int color) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
@@ -117,7 +141,16 @@ public class World {
     }
 
     /**
-     * Overloaded block setting method for spawner type blocks
+     * This method sets a spawner block in the world at the specified coordinates with the specified data, and items.
+     * This method is specifically for spawner blocks.
+     *
+     * @param x the x-coordinate of the block
+     * @param y the y-coordinate of the block
+     * @param z the z-coordinate of the block
+     * @param type the type of the block
+     * @param data the data of the block, example: the orientation of the spawner
+     * @param entityId the name of the entity that the spawner spawns
+     * @param dangerLevel the danger level of the spawner for max spawn able entities
      */
     private void setBlock(int x, int y, int z, int type, int data, String entityId, Short dangerLevel) {
         Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
@@ -134,6 +167,16 @@ public class World {
         }
     }
 
+    /**
+     * This method sets a block in the world at the specified coordinates with the specified type and data.
+     * This is a general method that can be used for any type of block.
+     *
+     * @param x the x-coordinate of the block
+     * @param y the y-coordinate of the block
+     * @param z the z-coordinate of the block
+     * @param type the type of the block
+     * @param data the data of the block
+     */
     public void setBlock(int x, int y, int z, int type, int data) {
         setBlockInChunk(x, y, z, type, data);
     }
