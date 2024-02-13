@@ -141,7 +141,7 @@ public class Chunk {
      * @param convertedEntity the name of the entity which is already in the correct format
      */
     private NBTTag createEntityBasedOnCorrectName(String convertedEntity) {
-        NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, "id", convertedEntity);
+        NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, SpawnerNBTTag.ID.getTagName(), convertedEntity);
         return new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId,
                 new NBTTag(NBTTag.Type.TAG_End, null, null)});
     }
@@ -159,7 +159,9 @@ public class Chunk {
     private void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, NBTTag entityTag) {
         for (NBTTag tileEntityTag : (NBTTag[]) tileEntities.getValue()) {
             if (isSpawnerAlreadyExists(tileEntityTag, x, y, z)) {
-                tileEntityTag.getSubtagByName("EntityId").setValue(new NBTTag[]{entityTag,
+
+                NBTTag entityTag = createEntityBasedOnCorrectName(convertedEntity);
+                tileEntityTag.getSubtagByName(SpawnerNBTTag.ENTITY_ID.getTagName()).setValue(new NBTTag[]{entityTag,
                         new NBTTag(NBTTag.Type.TAG_End, null, null)});
                 return;
             }
@@ -174,10 +176,10 @@ public class Chunk {
      * @param tileEntityTag the tag of the entity that is being checked
      */
     private boolean isSpawnerAlreadyExists(NBTTag tileEntityTag, int x, int y, int z) {
-        return (int) tileEntityTag.getSubtagByName("x").getValue() == x &&
-                (int) tileEntityTag.getSubtagByName("y").getValue() == y &&
-                (int) tileEntityTag.getSubtagByName("z").getValue() == z &&
-                "MobSpawner".equals(tileEntityTag.getSubtagByName("id").getValue());
+        return (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.X.getTagName()).getValue() == x &&
+                (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.Y.getTagName()).getValue() == y &&
+                (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.Z.getTagName()).getValue() == z &&
+                "MobSpawner".equals(tileEntityTag.getSubtagByName(SpawnerNBTTag.ID.getTagName()).getValue());
     }
 
     /**
@@ -189,13 +191,15 @@ public class Chunk {
      * @param convertedEntity the correct form of the entity's name which is accepted by the NBT tag creation process
      */
     private NBTTag[] createNBTTagListOfSpawner(short dangerLevel, int x, int y, int z, String convertedEntity) {
-        NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, "x", x);
-        NBTTag yTag = new NBTTag(NBTTag.Type.TAG_Int, "y", y);
-        NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, "z", z);
-        NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, "EntityId", convertedEntity);
-        NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, "id", "MobSpawner");
-        NBTTag requiredPlayerRange = new NBTTag(NBTTag.Type.TAG_Short, "RequiredPlayerRange", (short) 16);
-        NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, "MaxNearbyEntities", dangerLevel);
+        NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, SpawnerNBTTag.X.getTagName(), x);
+        NBTTag yTag = new NBTTag(NBTTag.Type.TAG_Int, SpawnerNBTTag.Y.getTagName(), y);
+        NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, SpawnerNBTTag.Z.getTagName(), z);
+        NBTTag eIdTag = new NBTTag(NBTTag.Type.TAG_String, SpawnerNBTTag.ENTITY_ID.getTagName(), convertedEntity);
+        NBTTag idTag = new NBTTag(NBTTag.Type.TAG_String, SpawnerNBTTag.ID.getTagName(), "MobSpawner");
+        NBTTag requiredPlayerRange = new NBTTag(NBTTag.Type.TAG_Short, SpawnerNBTTag.REQUIRED_PLAYER_RANGE.getTagName(),
+                (short) 16);
+        NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, SpawnerNBTTag.MAX_NEARBY_ENTITIES.getTagName(),
+                dangerLevel);
 
         return (dangerLevel > 0 ? new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange, maxNearbyEntitiesTag,
                 new NBTTag(NBTTag.Type.TAG_End, null, null)} : new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag,
@@ -481,6 +485,24 @@ public class Chunk {
     @Override
     public String toString() {
         return tag.toString();
+    }
+
+    public enum SpawnerNBTTag {
+        X("x"),
+        Y("y"),
+        Z("z"),
+        ENTITY_ID("EntityId"),
+        ID("id"),
+        REQUIRED_PLAYER_RANGE("RequiredPlayerRange"),
+        MAX_NEARBY_ENTITIES("MaxNearbyEntities");
+
+        private final String tagName;
+        SpawnerNBTTag(String tagName) {
+            this.tagName = tagName;
+        }
+        public String getTagName() {
+            return this.tagName;
+        }
     }
 
 }
