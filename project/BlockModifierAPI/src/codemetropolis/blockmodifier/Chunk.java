@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+
+//TODO: Refactor this class
 public class Chunk {
 
     public NBTTag tag;
