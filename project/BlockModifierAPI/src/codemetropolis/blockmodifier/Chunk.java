@@ -104,6 +104,7 @@ public class Chunk {
     /**
      * This method sets the spawner block NBT tags correctly depending on the entity, and then adds it to the rest of the
      * tile entities
+     *
      * @param x x index of spawner
      * @param y y index of spawner
      * @param z z index of spawner
@@ -117,7 +118,6 @@ public class Chunk {
         updateMobSpawnerEntity(tileEntities, x, y, z, entityTag);
 
         NBTTag[] spawnerNBTTags = createNBTTagListOfSpawner(dangerLevel, x, y, z, convertedEntity);
-
         NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", spawnerNBTTags);
 
         tileEntities.addTag(tileEntityTag);
@@ -129,6 +129,7 @@ public class Chunk {
 
     /**
      * This method cuts the "minecraft:" part of an entity's name and then capitalizes it for the NBT tag creation
+     *
      * @param entity the entity's name which name's format needs to be corrected
      */
     private String convertEntityIntoCorrectForm(String entity) {
@@ -138,7 +139,8 @@ public class Chunk {
 
     /**
      * This method creates a new entity NBT tag based on the correct NBT format
-     * @param convertedEntity the name of the entity which is already in the correct format
+     *
+     * @param convertedEntity the name of the entity which is already in the correct format for the NBT tag creation
      */
     private NBTTag createEntityBasedOnCorrectName(String convertedEntity) {
         NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, SpawnerNBTTag.ID.getTagName(), convertedEntity);
@@ -150,6 +152,7 @@ public class Chunk {
      * This method iterates through all the tile entities and checks if the spawner already exists, if it does then the
      * method sets the spawner block NBT tags correctly depending on the entity and add it to the rest of the tile
      * entities
+     *
      * @param tileEntities the entities that are already in the chunk
      * @param x x index of spawner
      * @param y y index of spawner
@@ -163,18 +166,12 @@ public class Chunk {
                 NBTTag entityTag = createEntityBasedOnCorrectName(convertedEntity);
                 tileEntityTag.getSubtagByName(SpawnerNBTTag.ENTITY_ID.getTagName()).setValue(new NBTTag[]{entityTag,
                         new NBTTag(NBTTag.Type.TAG_End, null, null)});
+
                 return;
             }
         }
     }
 
-    /**
-     * This method sets checks if the spawner exists at a certain coordinate with the correct spawner NBTTag
-     * @param x x index of spawner
-     * @param y y index of spawner
-     * @param z z index of spawner
-     * @param tileEntityTag the tag of the entity that is being checked
-     */
     private boolean isSpawnerAlreadyExists(NBTTag tileEntityTag, int x, int y, int z) {
         return (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.X.getTagName()).getValue() == x &&
                 (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.Y.getTagName()).getValue() == y &&
@@ -184,11 +181,12 @@ public class Chunk {
 
     /**
      * This method puts together the tag list for the spawner based on the previously created individual NBT tags
+     *
      * @param dangerLevel the danger level associated with the spawner, can be between 1 and 10
      * @param x the x coordinate of the spawner
      * @param y the y coordinate of the spawner
      * @param z the z coordinate of the spawner
-     * @param convertedEntity the correct form of the entity's name which is accepted by the NBT tag creation process
+     * @param convertedEntity the name of the entity which is already in the correct format for the NBT tag creation
      */
     private NBTTag[] createNBTTagListOfSpawner(short dangerLevel, int x, int y, int z, String convertedEntity) {
         NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, SpawnerNBTTag.X.getTagName(), x);
