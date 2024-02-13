@@ -113,9 +113,8 @@ public class Chunk {
     public void setSpawnerSubstance(int x, int y, int z, String entity, short dangerLevel) {
         NBTTag tileEntities = getAllTileEntities();
         String convertedEntity = convertEntityIntoCorrectForm(entity);
-        NBTTag entityTag = createEntityBasedOnCorrectName(convertedEntity);
 
-        updateMobSpawnerEntity(tileEntities, x, y, z, entityTag);
+        updateMobSpawnerEntity(tileEntities, x, y, z, convertedEntity);
 
         NBTTag[] spawnerNBTTags = createNBTTagListOfSpawner(dangerLevel, x, y, z, convertedEntity);
         NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", spawnerNBTTags);
@@ -157,9 +156,9 @@ public class Chunk {
      * @param x x index of spawner
      * @param y y index of spawner
      * @param z z index of spawner
-     * @param entityTag specific tag for the entity
+     * @param convertedEntity the name of the entity which is already in the correct format for the NBT tag creation
      */
-    private void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, NBTTag entityTag) {
+    private void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, String convertedEntity) {
         for (NBTTag tileEntityTag : (NBTTag[]) tileEntities.getValue()) {
             if (isSpawnerAlreadyExists(tileEntityTag, x, y, z)) {
 
