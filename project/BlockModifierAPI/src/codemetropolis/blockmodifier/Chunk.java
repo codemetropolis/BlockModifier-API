@@ -161,15 +161,18 @@ public class Chunk {
     private void updateMobSpawnerEntity(NBTTag tileEntities, int x, int y, int z, String convertedEntity) {
         for (NBTTag tileEntityTag : (NBTTag[]) tileEntities.getValue()) {
             if (isSpawnerAlreadyExists(tileEntityTag, x, y, z)) {
-
-                NBTTag entityTag = createEntityBasedOnCorrectName(convertedEntity);
-                tileEntityTag.getSubtagByName(SpawnerNBTTag.ENTITY_ID.getTagName()).setValue(new NBTTag[]{entityTag,
-                        new NBTTag(NBTTag.Type.TAG_End, null, null)});
-
+                updateTileEntityTag(tileEntityTag, convertedEntity);
                 return;
             }
         }
     }
+
+    private void updateTileEntityTag(NBTTag tileEntityTag, String convertedEntity) {
+        NBTTag entityTag = createEntityBasedOnCorrectName(convertedEntity);
+        tileEntityTag.getSubtagByName(SpawnerNBTTag.ENTITY_ID.getTagName()).setValue(new NBTTag[]{entityTag,
+                new NBTTag(NBTTag.Type.TAG_End, null, null)});
+    }
+
 
     private boolean isSpawnerAlreadyExists(NBTTag tileEntityTag, int x, int y, int z) {
         return (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.X.getTagName()).getValue() == x &&
