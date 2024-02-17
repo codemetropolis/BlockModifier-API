@@ -91,72 +91,6 @@ public class World {
         return chunk;
     }
 
-    /**
-     * This method sets a sign block in the world at the specified coordinates with the specified data, and text.
-     * This method is specifically for sign blocks.
-     *
-     * @param x the x-coordinate of the block
-     * @param y the y-coordinate of the block
-     * @param z the z-coordinate of the block
-     * @param type the type of the block
-     * @param data the data of the block, example: the type of wood the sign is made of
-     * @param text the text of the sign
-     */
-    private void setBlock(int x, int y, int z, int type, int data, String text) {
-        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-        currentChunk.setSignText(x, y, z, text);
-    }
-
-    /**
-     * This method sets a chest block in the world at the specified coordinates with the specified data, and items.
-     * This method is specifically for chest blocks.
-     *
-     * @param x the x-coordinate of the block
-     * @param y the y-coordinate of the block
-     * @param z the z-coordinate of the block
-     * @param type the type of the block
-     * @param data the data of the block, example: the orientation of the chest
-     * @param items the items stored in the chest
-     */
-    private void setBlock(int x, int y, int z, int type, int data, int[] items) {
-        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-        for (int i = 0; i < items.length; i += 2)
-            currentChunk.addChestItem(x, y, z, items[i], items[i + 1]);
-    }
-
-    /**
-     * This method sets a banner block in the world at the specified coordinates with the specified data, and items.
-     * This method is specifically for banner blocks.
-     *
-     * @param x the x-coordinate of the block
-     * @param y the y-coordinate of the block
-     * @param z the z-coordinate of the block
-     * @param type the type of the block
-     * @param data the data of the block, example: the orientation of the flag
-     * @param color the color of the banner
-     */
-    private void setBlock(int x, int y, int z, int type, int data, int color) {
-        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-        currentChunk.setBannerColor(x, y, z, color);
-    }
-
-    /**
-     * This method sets a spawner block in the world at the specified coordinates with the specified data, and items.
-     * This method is specifically for spawner blocks.
-     *
-     * @param x the x-coordinate of the block
-     * @param y the y-coordinate of the block
-     * @param z the z-coordinate of the block
-     * @param type the type of the block
-     * @param data the data of the block, example: the orientation of the spawner
-     * @param entityId the name of the entity that the spawner spawns
-     * @param dangerLevel the danger level of the spawner for max spawn able entities
-     */
-    private void setBlock(int x, int y, int z, int type, int data, String entityId, Short dangerLevel) {
-        Chunk currentChunk = setBlockInChunk(x, y, z, type, data);
-        currentChunk.setSpawnerSubstance(x, y, z, entityId, dangerLevel);
-    }
-
     private void checkCoordinateYBoundaries(int y) {
         if (y < 0 || y > 255) {
             try {
@@ -177,8 +111,8 @@ public class World {
      * @param type the type of the block
      * @param data the data of the block
      */
-    public void setBlock(int x, int y, int z, int type, int data) {
-        setBlockInChunk(x, y, z, type, data);
+    public Chunk setBlock(int x, int y, int z, int type, int data) {
+        return setBlockInChunk(x, y, z, type, data);
     }
 
     public void setBlock(int x, int y, int z, int type) {
@@ -190,7 +124,8 @@ public class World {
     }
 
     public void setSignPost(int x, int y, int z, int data, String text) {
-        setBlock(x, y, z, 63, data, text);
+        Chunk currentChunk = setBlock(x, y, z, 63, data);
+        currentChunk.setSignText(x, y, z, text);
     }
 
     public void setSignPost(int x, int y, int z, String text) {
@@ -198,7 +133,8 @@ public class World {
     }
 
     public void setWallSign(int x, int y, int z, int data, String text) {
-        setBlock(x, y, z, 68, data, text);
+        Chunk currentChunk = setBlock(x, y, z, 68, data);
+        currentChunk.setSignText(x, y, z, text);
     }
 
     public void setWallSign(int x, int y, int z, String text) {
@@ -215,7 +151,8 @@ public class World {
      * @param entityId name of entity that spawner spawns, example: minecraft:zombie
      */
     public void setSpawner(int x, int y, int z, int data, String entityId, Short dangerLevel) {
-        setBlock(x, y, z, 52, data, entityId, dangerLevel);
+        Chunk currentChunk = setBlock(x, y, z, 52, data);
+        currentChunk.setSpawnerSubstance(x, y, z, entityId, dangerLevel);
     }
 
     /**
@@ -232,7 +169,9 @@ public class World {
     }
 
     public void setChest(int x, int y, int z, int data, int[] items) {
-        setBlock(x, y, z, 54, data, items);
+        Chunk currentChunk = setBlock(x, y, z, 54, data);
+        for (int i = 0; i < items.length; i += 2)
+            currentChunk.addChestItem(x, y, z, items[i], items[i + 1]);
     }
 
     public void setChest(int x, int y, int z, int[] items) {
@@ -240,7 +179,8 @@ public class World {
     }
 
     public void setBanner(int x, int y, int z, int data, BannerColor color) {
-        setBlock(x, y, z, 176, data, color.ordinal());
+        Chunk currentChunk = setBlock(x, y, z, 176, data);
+        currentChunk.setBannerColor(x, y, z, color.ordinal());
     }
 
 	private Region getRegion(int x, int z) {
