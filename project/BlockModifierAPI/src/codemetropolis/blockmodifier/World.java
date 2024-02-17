@@ -152,7 +152,7 @@ public class World {
      */
     public void setSpawner(int x, int y, int z, int data, String entityId, Short dangerLevel) {
         Chunk currentChunk = setBlock(x, y, z, 52, data);
-        currentChunk.setSpawnerSubstance(x, y, z, entityId, dangerLevel);
+        currentChunk.setSpawnerContent(x, y, z, entityId, dangerLevel);
     }
 
     /**

@@ -110,7 +110,7 @@ public class Chunk {
      * @param z z index of spawner
      * @param entity entity id of the entity we place into the spawner example: minecraft:spider
      */
-    public void setSpawnerSubstance(int x, int y, int z, String entity, short dangerLevel) {
+    public void setSpawnerContent(int x, int y, int z, String entity, short dangerLevel) {
         NBTTag tileEntities = getAllTileEntities();
         String convertedEntity = convertEntityIntoCorrectForm(entity);
 
