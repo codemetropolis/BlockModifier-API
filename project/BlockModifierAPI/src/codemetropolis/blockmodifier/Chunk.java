@@ -101,6 +101,7 @@ public class Chunk {
         if (heightMap[z * 16 + x] < y + 1)
             heightMap[z * 16 + x] = y + 1;
     }
+
     /**
      * This method sets the spawner block NBT tags correctly depending on the entity, and then adds it to the rest of the
      * tile entities
@@ -113,13 +114,16 @@ public class Chunk {
     public void setSpawnerContent(int x, int y, int z, String entity, short dangerLevel) {
         NBTTag tileEntities = getAllTileEntities();
         String convertedEntity = convertEntityIntoCorrectForm(entity);
+        NBTTag spawnDataEntityTag = createNewEntity(convertedEntity);
 
-        findMobSpawnerIfItExists(tileEntities, x, y, z, convertedEntity);
+        boolean isSpawnerExists = checkIfSpawnerExists(tileEntities, x, y, z, spawnDataEntityTag);
 
-        NBTTag[] spawnerNBTTags = createNBTTagListOfSpawner(dangerLevel, x, y, z, convertedEntity);
-        NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", spawnerNBTTags);
-
-        tileEntities.addTag(tileEntityTag);
+        if(!isSpawnerExists){
+            NBTTag[] spawnerNBTTags = createNBTTagListForSpawner(dangerLevel, x, y, z, convertedEntity,
+                    spawnDataEntityTag);
+            NBTTag tileEntityTag = new NBTTag(NBTTag.Type.TAG_Compound, "", spawnerNBTTags);
+            tileEntities.addTag(tileEntityTag);
+        }
     }
 
     private NBTTag getAllTileEntities() {
@@ -141,10 +145,10 @@ public class Chunk {
      *
      * @param convertedEntity the name of the entity which is already in the correct format for the NBT tag creation
      */
-    private NBTTag createEntityBasedOnCorrectName(String convertedEntity) {
+    private NBTTag createNewEntity(String convertedEntity) {
         NBTTag entityId = new NBTTag(NBTTag.Type.TAG_String, SpawnerNBTTag.ID.getTagName(), convertedEntity);
-        return new NBTTag(NBTTag.Type.TAG_Compound, "entity", new NBTTag[]{entityId,
-                new NBTTag(NBTTag.Type.TAG_End, null, null)});
+        return new NBTTag(NBTTag.Type.TAG_Compound, "entity",
+                new NBTTag[]{entityId, new NBTTag(NBTTag.Type.TAG_End, null, null)});
     }
 
     /**
@@ -156,29 +160,29 @@ public class Chunk {
      * @param x x index of spawner
      * @param y y index of spawner
      * @param z z index of spawner
-     * @param convertedEntity the name of the entity which is already in the correct format for the NBT tag creation
+     * @param spawnDataEntityTag SpawnData NBT tag that describes what do the spawner spawns
      */
-    private void findMobSpawnerIfItExists(NBTTag tileEntities, int x, int y, int z, String convertedEntity) {
-        for (NBTTag tileEntityTag : (NBTTag[]) tileEntities.getValue()) {
-            if (isSpawnerAlreadyExists(tileEntityTag, x, y, z)) {
-                updateTileEntityTag(tileEntityTag, convertedEntity);
-                return;
+    private boolean checkIfSpawnerExists(NBTTag tileEntities, int x, int y, int z, NBTTag spawnDataEntityTag) {
+        for (NBTTag tileEntity : (NBTTag[]) tileEntities.getValue()) {
+            if (isSpawnerFound(tileEntity, x, y, z)) {
+                updateSpawnerTileEntityWithSpawnData(tileEntity, spawnDataEntityTag);
+                return true;
             }
         }
+        return false;
     }
 
-    private void updateTileEntityTag(NBTTag tileEntityTag, String convertedEntity) {
-        NBTTag entityTag = createEntityBasedOnCorrectName(convertedEntity);
-        tileEntityTag.getSubtagByName(SpawnerNBTTag.ENTITY_ID.getTagName()).setValue(new NBTTag[]{entityTag,
+    private void updateSpawnerTileEntityWithSpawnData(NBTTag tileEntity, NBTTag spawnDataEntityTag) {
+        tileEntity.getSubtagByName("SpawnData").setValue(new NBTTag[]{spawnDataEntityTag,
                 new NBTTag(NBTTag.Type.TAG_End, null, null)});
     }
 
 
-    private boolean isSpawnerAlreadyExists(NBTTag tileEntityTag, int x, int y, int z) {
-        return (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.X.getTagName()).getValue() == x &&
-                (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.Y.getTagName()).getValue() == y &&
-                (int) tileEntityTag.getSubtagByName(SpawnerNBTTag.Z.getTagName()).getValue() == z &&
-                "MobSpawner".equals(tileEntityTag.getSubtagByName(SpawnerNBTTag.ID.getTagName()).getValue());
+    private boolean isSpawnerFound(NBTTag tileEntity, int x, int y, int z) {
+        return (int) tileEntity.getSubtagByName(SpawnerNBTTag.X.getTagName()).getValue() == x &&
+                (int) tileEntity.getSubtagByName(SpawnerNBTTag.Y.getTagName()).getValue() == y &&
+                (int) tileEntity.getSubtagByName(SpawnerNBTTag.Z.getTagName()).getValue() == z &&
+                "MobSpawner".equals(tileEntity.getSubtagByName(SpawnerNBTTag.ID.getTagName()).getValue());
     }
 
     /**
@@ -190,7 +194,8 @@ public class Chunk {
      * @param z the z coordinate of the spawner
      * @param convertedEntity the name of the entity which is already in the correct format for the NBT tag creation
      */
-    private NBTTag[] createNBTTagListOfSpawner(short dangerLevel, int x, int y, int z, String convertedEntity) {
+    private NBTTag[] createNBTTagListForSpawner(short dangerLevel, int x, int y, int z, String convertedEntity,
+                                                NBTTag spawnDataEntityTag) {
         NBTTag xTag = new NBTTag(NBTTag.Type.TAG_Int, SpawnerNBTTag.X.getTagName(), x);
         NBTTag yTag = new NBTTag(NBTTag.Type.TAG_Int, SpawnerNBTTag.Y.getTagName(), y);
         NBTTag zTag = new NBTTag(NBTTag.Type.TAG_Int, SpawnerNBTTag.Z.getTagName(), z);
@@ -200,10 +205,12 @@ public class Chunk {
                 (short) 16);
         NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, SpawnerNBTTag.MAX_NEARBY_ENTITIES.getTagName(),
                 dangerLevel);
+        NBTTag spawnDataTag = new NBTTag(NBTTag.Type.TAG_Compound, "SpawnData", new NBTTag[]{spawnDataEntityTag,
+                new NBTTag(NBTTag.Type.TAG_End, null, null)});
 
         return (dangerLevel > 0 ? new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange, maxNearbyEntitiesTag,
-                new NBTTag(NBTTag.Type.TAG_End, null, null)} : new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag,
-                requiredPlayerRange, new NBTTag(NBTTag.Type.TAG_End, null, null)});
+                spawnDataTag, new NBTTag(NBTTag.Type.TAG_End, null, null)} : new NBTTag[]{xTag, yTag, zTag,
+                idTag, eIdTag, requiredPlayerRange, spawnDataTag, new NBTTag(NBTTag.Type.TAG_End, null, null)});
     }
 
     public void setSignText(int x, int y, int z, String text) {
