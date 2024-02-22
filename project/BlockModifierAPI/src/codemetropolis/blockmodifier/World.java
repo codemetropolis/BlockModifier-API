@@ -111,8 +111,8 @@ public class World {
      * @param type the type of the block
      * @param data the data of the block
      */
-    public Chunk setBlock(int x, int y, int z, int type, int data) {
-        return setBlockInChunk(x, y, z, type, data);
+    public void setBlock(int x, int y, int z, int type, int data) {
+        setBlockInChunk(x, y, z, type, data);
     }
 
     public void setBlock(int x, int y, int z, int type) {
@@ -124,7 +124,7 @@ public class World {
     }
 
     public void setSignPost(int x, int y, int z, int data, String text) {
-        Chunk currentChunk = setBlock(x, y, z, 63, data);
+        Chunk currentChunk = setBlockInChunk(x, y, z, 63, data);
         currentChunk.setSignText(x, y, z, text);
     }
 
@@ -133,7 +133,7 @@ public class World {
     }
 
     public void setWallSign(int x, int y, int z, int data, String text) {
-        Chunk currentChunk = setBlock(x, y, z, 68, data);
+        Chunk currentChunk = setBlockInChunk(x, y, z, 68, data);
         currentChunk.setSignText(x, y, z, text);
     }
 
@@ -151,7 +151,7 @@ public class World {
      * @param entityId name of entity that spawner spawns, example: minecraft:zombie
      */
     public void setSpawner(int x, int y, int z, int data, String entityId, Short dangerLevel) {
-        Chunk currentChunk = setBlock(x, y, z, 52, data);
+        Chunk currentChunk = setBlockInChunk(x, y, z, 52, data);
         currentChunk.setSpawnerContent(x, y, z, entityId, dangerLevel);
     }
 
@@ -169,7 +169,7 @@ public class World {
     }
 
     public void setChest(int x, int y, int z, int data, int[] items) {
-        Chunk currentChunk = setBlock(x, y, z, 54, data);
+        Chunk currentChunk = setBlockInChunk(x, y, z, 54, data);
         for (int i = 0; i < items.length; i += 2)
             currentChunk.addChestItem(x, y, z, items[i], items[i + 1]);
     }
@@ -179,7 +179,7 @@ public class World {
     }
 
     public void setBanner(int x, int y, int z, int data, BannerColor color) {
-        Chunk currentChunk = setBlock(x, y, z, 176, data);
+        Chunk currentChunk = setBlockInChunk(x, y, z, 176, data);
         currentChunk.setBannerColor(x, y, z, color.ordinal());
     }
 
