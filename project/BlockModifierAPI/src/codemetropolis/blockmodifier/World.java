@@ -105,50 +105,104 @@ public class World {
      * This method sets a block in the world at the specified coordinates with the specified type and data.
      * This is a general method that can be used for any type of block.
      *
-     * @param x the x-coordinate of the block
-     * @param y the y-coordinate of the block
-     * @param z the z-coordinate of the block
-     * @param type the type of the block
-     * @param data the data of the block
+     * @param x The x-coordinate of the block.
+     * @param y The y-coordinate of the block.
+     * @param z The z-coordinate of the block.
+     * @param type The type of the block.
+     * @param data The data of the block.
      */
     public void setBlock(int x, int y, int z, int type, int data) {
         setBlockInChunk(x, y, z, type, data);
     }
 
+    /**
+     * Sets the position data and type of regular block in CodeMetropolis and delegates the block
+     * setup to another method.
+     *
+     * @param x The x-coordinate index of the block.
+     * @param y The y-coordinate index of the block.
+     * @param z The z-coordinate index of the block.
+     * @param type The type of the block.
+     */
     public void setBlock(int x, int y, int z, int type) {
         setBlock(x, y, z, type, 0);
     }
 
+    /**
+     * Removes a block at the specified coordinates.
+     *
+     * @param x The x-coordinate index of the block.
+     * @param y The y-coordinate index of the block.
+     * @param z The z-coordinate index of the block.
+     */
     public void removeBlock(int x, int y, int z) {
         setBlock(x, y, z, 0);
     }
 
+    /**
+     * Sets a sign post block at the specified coordinates with the given data and text.
+     * The type 63 represents sign posts.
+     *
+     * @param x The x-coordinate index of the sign post.
+     * @param y The y-coordinate index of the sign post.
+     * @param z The z-coordinate index of the sign post.
+     * @param data The data of the sign post block.
+     * @param text The text to be displayed on the sign post.
+     */
     public void setSignPost(int x, int y, int z, int data, String text) {
         Chunk currentChunk = setBlockInChunk(x, y, z, 63, data);
         currentChunk.setSignText(x, y, z, text);
     }
 
+    /**
+     * Sets the position data and text of sign post blocks in CodeMetropolis and delegates the block
+     * setup to another method.
+     *
+     * @param x The x-coordinate index of the sign post.
+     * @param y The y-coordinate index of the sign post.
+     * @param z The z-coordinate index of the sign post.
+     * @param text The text to be displayed on the sign post.
+     */
     public void setSignPost(int x, int y, int z, String text) {
         setSignPost(x, y, z, 0, text);
     }
 
+    /**
+     * Sets a wall sign block at the specified coordinates with the given data and text.
+     * The type 68 represents wall signs.
+     *
+     * @param x The x-coordinate index of the wall sign.
+     * @param y The y-coordinate index of the wall sign.
+     * @param z The z-coordinate index of the wall sign.
+     * @param data The data of the wall sign block.
+     * @param text The text to be displayed on the wall sign.
+     */
     public void setWallSign(int x, int y, int z, int data, String text) {
         Chunk currentChunk = setBlockInChunk(x, y, z, 68, data);
         currentChunk.setSignText(x, y, z, text);
     }
 
+    /**
+     * Sets the position data and text of wall sign blocks in CodeMetropolis and delegates the block
+     * setup to another method.
+     *
+     * @param x The x-coordinate index of the wall sign.
+     * @param y The y-coordinate index of the wall sign.
+     * @param z The z-coordinate index of the wall sign.
+     * @param text The text to be displayed on the wall sign.
+     */
     public void setWallSign(int x, int y, int z, String text) {
         setWallSign(x, y, z, 0, text);
     }
 
     /**
-     * This method sets the spawner blocks that it receives, the type 52 is the code of spawners
+     * Sets spawner blocks at the specified coordinates. The type 52 represents spawners.
      *
-     * @param x x index of spawner
-     * @param y y index of spawner
-     * @param z z index of spawner
-     * @param data data of block
-     * @param entityId name of entity that spawner spawns, example: minecraft:zombie
+     * @param x The x-coordinate index of the spawner.
+     * @param y The y-coordinate index of the spawner.
+     * @param z The z-coordinate index of the spawner.
+     * @param data The data of the spawner block.
+     * @param dangerLevel The danger level associated with the spawner.
      */
     public void setSpawner(int x, int y, int z, int data, String entityId, Short dangerLevel) {
         Chunk currentChunk = setBlockInChunk(x, y, z, 52, data);
@@ -156,28 +210,58 @@ public class World {
     }
 
     /**
-     * This method receives the position data and monster entity of spawner blocks from codemetropolis and forwards them
-     * to another method that setBlock by data's
+     * Sets the position data and monster entity of spawner blocks in CodeMetropolis and delegates the block
+     * setup to another method.
      *
-     * @param x x index of spawner
-     * @param y y index of spawner
-     * @param z z index of spawner
-     * @param entityId name of entity that spawner spawns, example: minecraft:zombie
+     * @param x The x-coordinate index of the spawner.
+     * @param y The y-coordinate index of the spawner.
+     * @param z The z-coordinate index of the spawner.
+     * @param entityId The identifier of the entity spawned by the spawner. Example: "minecraft:zombie".
+     * @param dangerLevel The danger level associated with the spawner.
      */
     public void setSpawner(int x, int y, int z, String entityId, Short dangerLevel) {
         setSpawner(x, y, z, 0, entityId, dangerLevel);
     }
 
+    /**
+     * Sets chest blocks at the specified coordinates. The type 54 represents chests.
+     *
+     * @param x The x-coordinate index of the chest.
+     * @param y The y-coordinate index of the chest.
+     * @param z The z-coordinate index of the chest.
+     * @param data The data of the chest block.
+     * @param items An array representing the items to be placed in the chest.
+     *              The array should contain pairs of values: item ID followed by quantity.
+     */
     public void setChest(int x, int y, int z, int data, int[] items) {
         Chunk currentChunk = setBlockInChunk(x, y, z, 54, data);
         for (int i = 0; i < items.length; i += 2)
             currentChunk.addChestItem(x, y, z, items[i], items[i + 1]);
     }
 
+    /**
+     * Sets the position data and items of chest blocks in CodeMetropolis and delegates the block
+     * setup to another method.
+     *
+     * @param x The x-coordinate index of the chest.
+     * @param y The y-coordinate index of the chest.
+     * @param z The z-coordinate index of the chest.
+     * @param items An array representing the items to be placed in the chest.
+     *              The array should contain pairs of values: item ID followed by quantity.
+     */
     public void setChest(int x, int y, int z, int[] items) {
         setChest(x, y, z, 0, items);
     }
 
+    /**
+     * Sets banner blocks at the specified coordinates. The type 176 represents banners.
+     *
+     * @param x The x-coordinate index of the banner.
+     * @param y The y-coordinate index of the banner.
+     * @param z The z-coordinate index of the banner.
+     * @param data The data of the banner block.
+     * @param color The color of the banner represented by a BannerColor enum value.
+     */
     public void setBanner(int x, int y, int z, int data, BannerColor color) {
         Chunk currentChunk = setBlockInChunk(x, y, z, 176, data);
         currentChunk.setBannerColor(x, y, z, color.ordinal());
