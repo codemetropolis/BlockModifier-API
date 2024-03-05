@@ -6,8 +6,10 @@ import codemetropolis.blockmodifier.ext.NBTTag;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 
 public class TestChunk {
@@ -175,4 +177,88 @@ public class TestChunk {
         assertEquals("Text4 üres kellene legyen", "", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text4").getValue());
     }
 
+    @Test
+    public void testAddItemToEmptyChest() {
+        chunk.addChestItem(1, 1, 1, 100, 10);
+        NBTTag chest = TestChunk.getTileEntity(chunk, 1, 1, 1, "Chest");
+        assertNotNull("Láda nem lehet null", chest);
+        NBTTag items = chest.getSubtagByName("Items");
+        assertNotNull("Itemek tag nem lehet null", items);
+        assertEquals("Egy darab itemnek kellene lennie", 1, ((NBTTag[]) items.getValue()).length);
+        NBTTag item = ((NBTTag[]) items.getValue())[0];
+        assertEquals("Item id azonos kellene legyen", 100, item.getSubtagByName("id").getValue());
+        assertEquals("Item mennyiség azonos kellene legyen", 10, item.getSubtagByName("Count").getValue());
+    }
+
+    @Test
+    public void testAddItemToNonEmptyChest() {
+        chunk.addChestItem(2, 2, 2, 101, 5);
+        chunk.addChestItem(2, 2, 2, 102, 7);
+        NBTTag chest = TestChunk.getTileEntity(chunk, 2, 2, 2, "Chest");
+        assertNotNull("Láda nem lehet null", chest);
+        NBTTag items = chest.getSubtagByName("Items");
+        assertNotNull("Itemek tag nem lehet null", items);
+        assertEquals("Kettő darab itemnek kellene lennie", 2, ((NBTTag[]) items.getValue()).length);
+        Set<Short> itemIds = new HashSet<>();
+        for (NBTTag item : (NBTTag[]) items.getValue()) {
+            itemIds.add((Short) item.getSubtagByName("id").getValue());
+        }
+        assertTrue("A 101-es item mennyiségének helyesnek kell lennie", itemIds.contains((short) 101));
+        assertTrue("A 102-es item mennyiségének helyesnek kell lennie\"", itemIds.contains((short) 102));
+    }
+
+    @Test()
+    public void testAddItemWithInvalidParameters() {
+        chunk.addChestItem(-1, -1, -1, -100, -10); // Invalid parameters
+    }
+
+    @Test
+    public void testCorrectItemAdded() {
+        chunk.addChestItem(3, 3, 3, 103, 15);
+        NBTTag chest = TestChunk.getTileEntity(chunk, 3, 3, 3, "Chest");
+        assertNotNull("Láda nem lehet null", chest);
+        NBTTag items = chest.getSubtagByName("Items");
+        assertNotNull("Itemek tag nem lehet null", items);
+        assertEquals("Itemek között egy itemnek kellene lennie", 1, ((NBTTag[]) items.getValue()).length);
+        NBTTag item = ((NBTTag[]) items.getValue())[0];
+        assertEquals("Helyes item id-t kellene hozzáadni", (short) 103, item.getSubtagByName("id").getValue());
+        assertEquals("Helyes item mennyiséget kellene hozzáadni", (byte) 15, item.getSubtagByName("Count").getValue());
+    }
+
+    @Test
+    public void testAddingItemDoesNotAffectOtherItems() {
+        chunk.addChestItem(4, 4, 4, 104, 20);
+        chunk.addChestItem(4, 4, 4, 105, 25);
+        chunk.addChestItem(4, 4, 4, 104, 5);
+        NBTTag chest = TestChunk.getTileEntity(chunk, 4, 4, 4, "Chest");
+        assertNotNull("Láda nem lehet null", chest);
+        NBTTag items = chest.getSubtagByName("Items");
+        assertNotNull("Item tag nem lehet null", items);
+        assertEquals("Három darab itemnek kellene lennie", 3, ((NBTTag[]) items.getValue()).length);
+        int quantityOf104 = 0;
+        int quantityOf105 = 0;
+        for (NBTTag item : (NBTTag[]) items.getValue()) {
+            if ((Short) item.getSubtagByName("id").getValue() == 104) {
+                quantityOf104 += (Byte) item.getSubtagByName("Count").getValue();
+            } else if ((Short) item.getSubtagByName("id").getValue() == 105) {
+                quantityOf105 = (Byte) item.getSubtagByName("Count").getValue();
+            }
+        }
+        assertEquals("A 104-es item mennyiségének helyesnek kell lennie", 25, quantityOf104);
+        assertEquals("A 105-ös item mennyiségének helyesnek kell lennie", 25, quantityOf105);
+    }
+
+    public static NBTTag getTileEntity(Chunk chunk, int x, int y, int z, String id) {
+        NBTTag tileEntities = chunk.tag.getSubtagByName("Level").getSubtagByName("TileEntities");
+        for (NBTTag t : (NBTTag[]) tileEntities.getValue()) {
+            if ((int) t.getSubtagByName("x").getValue() == x &&
+                    (int) t.getSubtagByName("y").getValue() == y &&
+                    (int) t.getSubtagByName("z").getValue() == z &&
+                    ((String) t.getSubtagByName("id").getValue()).equals(id)) {
+                return t;
+            }
+        }
+        return null;
+    }
+    
 }
