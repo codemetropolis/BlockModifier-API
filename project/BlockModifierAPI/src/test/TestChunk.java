@@ -19,10 +19,6 @@ public class TestChunk {
         chunk = new ChunkEntity(10, 5);
     }
 
-    private ChunkEntity createChunkEntity(int x, int z) {
-        return new ChunkEntity(x, z);
-    }
-
     static class ChunkEntity extends Chunk {
 
         public ChunkEntity(int x, int z) {
@@ -133,4 +129,26 @@ public class TestChunk {
 
     }
 
+    @Test()
+    public void testSetSpawnerContentMaxNearbyEntitiesTagWithCorrectValue() {
+        chunk.setSpawnerContent(8, 12, 14, "minecraft:zombie", (short) 1);
+
+        assertEquals("A spawner MaxNearbyEntities-ének típusa nem jól állítódott be!", NBTTag.Type.TAG_Short, getTileEntities(chunk).getSubtags()[0].getSubtagByName("MaxNearbyEntities").getType());
+        assertEquals("A spawner MaxNearbyEntities-ének értéke nem jól állítódott be!", (short) 1, getTileEntities(chunk).getSubtags()[0].getSubtagByName("MaxNearbyEntities").getValue());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testSetSpawnerContentMaxNearbyEntitiesTagWithNegative() {
+        chunk.setSpawnerContent(8, 12, 14, "minecraft:zombie", (short) -1);
+
+        assertEquals("A spawner MaxNearbyEntities-ének értéke nem jól állítódott be!", (short) 10, getTileEntities(chunk).getSubtags()[0].getSubtagByName("MaxNearbyEntities").getValue());
+    }
+
+    @Test()
+    public void testSetSpawnerContentMaxNearbyEntitiesTagWithTooLargeValue() {
+        chunk.setSpawnerContent(8, 12, 14, "minecraft:zombie", (short) 22);
+
+        assertEquals("A spawner MaxNearbyEntities-ének típusa nem jól állítódott be!", NBTTag.Type.TAG_Short, getTileEntities(chunk).getSubtags()[0].getSubtagByName("MaxNearbyEntities").getType());
+        assertEquals("A spawner MaxNearbyEntities-ének értéke nem jól állítódott be!", (short) 10, getTileEntities(chunk).getSubtags()[0].getSubtagByName("MaxNearbyEntities").getValue());
+    }
 }
