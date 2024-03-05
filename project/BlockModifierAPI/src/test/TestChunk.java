@@ -188,8 +188,8 @@ public class TestChunk {
         assertNotNull("Itemek tag nem lehet null", items);
         assertEquals("Egy darab itemnek kellene lennie", 1, ((NBTTag[]) items.getValue()).length);
         NBTTag item = ((NBTTag[]) items.getValue())[0];
-        assertEquals("Item id azonos kellene legyen", 100, item.getSubtagByName("id").getValue());
-        assertEquals("Item mennyiség azonos kellene legyen", 10, item.getSubtagByName("Count").getValue());
+        assertEquals("Item id azonos kellene legyen", (short) 100, item.getSubtagByName("id").getValue());
+        assertEquals("Item mennyiség azonos kellene legyen", (byte)10, item.getSubtagByName("Count").getValue());
     }
 
     @Test
@@ -209,9 +209,10 @@ public class TestChunk {
         assertTrue("A 102-es item mennyiségének helyesnek kell lennie\"", itemIds.contains((short) 102));
     }
 
+    //TODO: No invalid parameter check in chunk.addChestItem
     @Test()
     public void testAddItemWithInvalidParameters() {
-        chunk.addChestItem(-1, -1, -1, -100, -10); // Invalid parameters
+        chunk.addChestItem(-1, -1, -1, -100, -10);
     }
 
     @Test
@@ -275,14 +276,9 @@ public class TestChunk {
         assertNotNull("Parsed chunk-nak nem kellene null-nak lennie", parsedChunk);
     }
 
-    @Test()
+    @Test(expected = RuntimeException.class)
     public void testParseNBTInvalidType() throws NBTException {
         NBTTag testTag = new NBTTag("Test", NBTTag.Type.TAG_List);
-        try {
-            Chunk.parseNBT(testTag);
-            throw new NBTException("Chunk tag-nek összetettnek kell lennie.");
-        } catch (NBTException e) {
-            assertEquals("Várható  NBTException konkrét üzenettel", "Chunk tag-nek összetettnek kell lennie.", e.getMessage());
-        }
+        Chunk.parseNBT(testTag);
     }
 }

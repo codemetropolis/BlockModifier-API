@@ -15,12 +15,14 @@ public class Chunk {
 
     public NBTTag tag;
 
+
+    //TODO: Fix RuntimeException to make it NBTException
     private Chunk(NBTTag tag) {
         if (tag.getType() != NBTTag.Type.TAG_Compound) {
             try {
                 throw new NBTException("Chunk tag must be compound.");
             } catch (NBTException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
         this.tag = tag;
