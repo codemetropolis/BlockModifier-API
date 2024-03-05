@@ -6,6 +6,8 @@ import codemetropolis.blockmodifier.ext.NBTTag;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 
 //TODO: Refactor this class
@@ -203,14 +205,18 @@ public class Chunk {
                 SpawnerNBTTag.ID_VALUE.getTagName());
         NBTTag requiredPlayerRange = new NBTTag(NBTTag.Type.TAG_Short, SpawnerNBTTag.REQUIRED_PLAYER_RANGE.getTagName(),
                 (short) 16);
-        NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, SpawnerNBTTag.MAX_NEARBY_ENTITIES.getTagName(),
-                dangerLevel);
         NBTTag spawnDataTag = new NBTTag(NBTTag.Type.TAG_Compound, SpawnerNBTTag.SPAWN_DATA.getTagName(), new NBTTag[]{
                 new NBTTag(NBTTag.Type.TAG_End, null, null)});
 
-        return (dangerLevel > 0 ? new NBTTag[]{xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange, maxNearbyEntitiesTag,
-                spawnDataTag, new NBTTag(NBTTag.Type.TAG_End, null, null)} : new NBTTag[]{xTag, yTag, zTag,
-                idTag, eIdTag, requiredPlayerRange, spawnDataTag, new NBTTag(NBTTag.Type.TAG_End, null, null)});
+        List<NBTTag> nbtTags = new ArrayList<>(Arrays.asList(xTag, yTag, zTag, idTag, eIdTag, requiredPlayerRange, spawnDataTag, new NBTTag(NBTTag.Type.TAG_End, null, null)));
+
+        if (dangerLevel > 0) {
+            NBTTag maxNearbyEntitiesTag = new NBTTag(NBTTag.Type.TAG_Short, SpawnerNBTTag.MAX_NEARBY_ENTITIES.getTagName(), (short) Math.min(dangerLevel, 10));
+            nbtTags.add(nbtTags.size() - 2, maxNearbyEntitiesTag);
+        }
+
+        return nbtTags.toArray(new NBTTag[0]);
+
     }
 
     public void setSignText(int x, int y, int z, String text) {
