@@ -1,6 +1,8 @@
 package test;
 
 import codemetropolis.blockmodifier.Chunk;
+
+import codemetropolis.blockmodifier.ext.NBTException;
 import codemetropolis.blockmodifier.ext.NBTTag;
 
 import org.junit.Before;
@@ -260,5 +262,27 @@ public class TestChunk {
         }
         return null;
     }
-    
+
+    @Test
+    public void testParseNBTValidData() {
+        NBTTag testTerrainPopulatedTag = new NBTTag(NBTTag.Type.TAG_Byte, "TerrainPopulated", (byte) 1);
+        NBTTag testXPosTag = new NBTTag(NBTTag.Type.TAG_Int, "xPos", 2);
+        NBTTag testZPosTag = new NBTTag(NBTTag.Type.TAG_Int, "zPos", 2);
+        NBTTag[] testTagList = new NBTTag[]{testTerrainPopulatedTag, testXPosTag, testZPosTag, new NBTTag(NBTTag.Type.TAG_End, null, null)};
+
+        NBTTag testLevelTag = new NBTTag(NBTTag.Type.TAG_Compound, "Level", testTagList);
+        Chunk parsedChunk = Chunk.parseNBT(testLevelTag);
+        assertNotNull("Parsed chunk-nak nem kellene null-nak lennie", parsedChunk);
+    }
+
+    @Test()
+    public void testParseNBTInvalidType() throws NBTException {
+        NBTTag testTag = new NBTTag("Test", NBTTag.Type.TAG_List);
+        try {
+            Chunk.parseNBT(testTag);
+            throw new NBTException("Chunk tag-nek összetettnek kell lennie.");
+        } catch (NBTException e) {
+            assertEquals("Várható  NBTException konkrét üzenettel", "Chunk tag-nek összetettnek kell lennie.", e.getMessage());
+        }
+    }
 }
