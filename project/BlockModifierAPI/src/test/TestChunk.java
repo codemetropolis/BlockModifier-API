@@ -151,4 +151,28 @@ public class TestChunk {
         assertEquals("A spawner MaxNearbyEntities-ének típusa nem jól állítódott be!", NBTTag.Type.TAG_Short, getTileEntities(chunk).getSubtags()[0].getSubtagByName("MaxNearbyEntities").getType());
         assertEquals("A spawner MaxNearbyEntities-ének értéke nem jól állítódott be!", (short) 10, getTileEntities(chunk).getSubtags()[0].getSubtagByName("MaxNearbyEntities").getValue());
     }
+
+    @Test
+    public void testSetSignTextWithLongString() {
+        String longText = "Ez egy hosszú szöveg ami négy részben kellene legyen.";
+        chunk.setSignText(1, 2, 3, longText);
+
+        assertEquals("Sign-nak léteznie kellene az adott koordinátákon", 1, getTileEntities(chunk).getSubtags().length);
+        assertEquals("Első sor szövegének egyeznie kellene", "Ez egy hosszú ", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text1").getValue());
+        assertEquals("Második sor szövegének egyeznie kellene", "szöveg ami nég", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text2").getValue());
+        assertEquals("Harmadik sor szövegének egyeznie kellene", "y részben kell", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text3").getValue());
+        assertEquals("Negyedik sor szövegének egyeznie kellene", "ene legyen.", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text4").getValue());
+    }
+
+    @Test
+    public void testSetSignTextWithEmptyString() {
+        chunk.setSignText(1, 2, 3, "");
+
+        assertEquals("Sign-nak léteznie kellene az adott koordinátákon", 1, getTileEntities(chunk).getSubtags().length);
+        assertEquals("Text1 üres kellene legyen", "", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text1").getValue());
+        assertEquals("Text2 üres kellene legyen", "", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text2").getValue());
+        assertEquals("Text3 üres kellene legyen", "", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text3").getValue());
+        assertEquals("Text4 üres kellene legyen", "", getTileEntities(chunk).getSubtags()[0].getSubtagByName("Text4").getValue());
+    }
+
 }
